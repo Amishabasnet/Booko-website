@@ -1,37 +1,27 @@
-import express, { Application, Request, Response } from 'express';
-import bodyParser from 'body-parser';
-import { connectDatabase } from './database/mongodb';
-import { PORT } from './config';
-import authRoutes from "./routes/auth.route";
-import cors from 'cors';
+import express from "express";
+import cors from "cors";
+import { env } from "./config/env";
+import { connectDB } from "./database/mongodb";
+import { authRouter } from "./routes/auth.route";
+import { errorHandler } from "./middlewares/errorHandler";
 
+async function bootstrap() {
+  await connectDB();
 
-const app: Application = express();
+  const app = express();
+  app.use(cors());
+  app.use(express.json());
 
-const corsOptions = {
-    origin:[ 'http://localhost:3000', 'http://localhost:3003', 'http://localhost:3005' ],
-    optionsSuccessStatus: 200,
-    credentials: true,
-};
-app.use(cors(corsOptions));
+  app.get("/health", (_req, res) => res.json({ ok: true, service: "booko-backend" }));
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+  app.use("/api/auth", authRouter);
 
-app.use('/api/auth', authRoutes);
-app.get('/', (req: Request, res: Response) => {
-    return res.status(200).json({ success: "true", message: "Welcome to the API" });
-});
+  app.use(errorHandler);
 
-async function startServer() {
-    await connectDatabase();
-
-    app.listen(
-        PORT,
-        () => {
-            console.log(`Server: http://localhost:${PORT}`);
-        }
-    );
+  app.listen(env.PORT, () => console.log(`🚀 Server running on :${env.PORT}`));
 }
 
-startServer();
+bootstrap().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});

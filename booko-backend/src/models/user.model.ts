@@ -1,29 +1,43 @@
-import mongoose, { Document, Schema } from "mongoose";
-import { UserType } from "../types/user.type";
-const UserSchema: Schema = new Schema<UserType>(
-    {
-        email: { type: String, required: true, unique: true },
-        password: { type: String, required: true },
-        username: { type: String, required: true, unique: true },
-        firstName: { type: String },
-        lastName: { type: String },
-        role: {
-            type: String,
-            enum: ['user', 'admin'],
-            default: 'user',
-        }
-    },
-    {
-        timestamps: true, // auto createdAt and updatedAt
-    }
-);
+import { UserModel, type IUser } from "../models/user.model";
 
-export interface IUser extends UserType, Document { // combine UserType and Document
-    _id: mongoose.Types.ObjectId; // mongo related attribute/ custom attributes
-    createdAt: Date;
-    updatedAt: Date;
+export interface IUserRepository {
+  getUserByEmail(email: string): Promise<IUser | null>;
+  getUserByUsername(username: string): Promise<IUser | null>;
+  createUser(userData: Partial<IUser>): Promise<IUser>;
+  getUserById(id: string): Promise<IUser | null>;
+  getAllUsers(): Promise<IUser[]>;
+  updateUser(id: string, updateData: Partial<IUser>): Promise<IUser | null>;
+  deleteUser(id: string): Promise<boolean>;
 }
 
-export const UserModel = mongoose.model<IUser>('User', UserSchema);
-// UserModel is the mongoose model for User collection
-// db.users in MongoDB
+export class UserRepository implements IUserRepository {
+  async createUser(userData: Partial<IUser>): Promise<IUser> {
+    const user = await UserModel.create(userData);
+    return user;
+  }
+
+  async getUserByEmail(email: string): Promise<IUser | null> {
+    return UserModel.findOne({ email }).exec();
+  }
+
+  async getUserByUsername(username: string): Promise<IUser | null> {
+    return UserModel.findOne({ username }).exec();
+  }
+
+  async getUserById(id: string): Promise<IUser | null> {
+    return UserModel.findById(id).exec();
+  }
+
+  async getAllUsers(): Promise<IUser[]> {
+    return UserModel.find().exec();
+  }
+
+  async updateUser(id: string, updateData: Partial<IUser>): Promise<IUser | null> {
+    return UserModel.findByIdAndUpdate(id, updateData, { new: true }).exec();
+  }
+
+  async deleteUser(id: string): Promise<boolean> {
+    const result = await UserModel.findByIdAndDelete(id).exec();
+    return !!result;
+  }
+}
