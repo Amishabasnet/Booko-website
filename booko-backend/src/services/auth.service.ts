@@ -1,49 +1,45 @@
-import bcrypt from "bcrypt";
-import { env } from "../config/env";
-import { signToken } from "../config/jwt";
-import { HttpError } from "../errors/http-error";
-import { authRepository } from "../repositories/auth.repository";
-import type { RegisterDto, LoginDto } from "../dtos/auth.dto";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import { ENV } from "../config/env";
+import { ApiError } from "../errors/ApiErrors";
+import { userRepository } from "../repositories/user.repository";
+import { RegisterDto, LoginDto } from "../dtos/auth.dto";
+
+function signToken(payload: { userId: string; email: string; role: "user" | "admin" }) {
+  return jwt.sign(payload, ENV.JWT_SECRET, { expiresIn: "7d" });
+}
 
 export const authService = {
-  register: async (dto: RegisterDto) => {
-    const existing = await authRepository.findByEmail(dto.email);
-    if (existing) throw new HttpError(409, "Email already in use");
+  async register(data: RegisterDto) {
+    const exists = await userRepository.findByEmail(data.email);
+    if (exists) throw new ApiError(409, "Email already exists");
 
-    const passwordHash = await bcrypt.hash(dto.password, env.BCRYPT_SALT_ROUNDS);
-    const role = dto.role ?? "user";
+    const passwordHash = await bcrypt.hash(data.password, 10);
 
-    const user = await authRepository.createUser({
-      name: dto.name,
-      email: dto.email,
+    const user = await userRepository.create({
+      email: data.email,
       passwordHash,
-      role,
+      name: data.name || "",
+      role: "user",
     });
 
     return {
-      id: user._id.toString(),
-      email: user.email,
-      role: user.role,
-      createdAt: user.createdAt,
+      user: { id: String(user._id), email: user.email, name: user.name, role: user.role },
     };
   },
 
-  login: async (dto: LoginDto) => {
-    const user = await authRepository.findByEmail(dto.email);
-    if (!user) throw new HttpError(401, "Invalid email or password");
+  async login(data: LoginDto) {
+    const user = await userRepository.findByEmail(data.email);
+    if (!user) throw new ApiError(404, "Email not found");
 
-    const ok = await bcrypt.compare(dto.password, user.passwordHash);
-    if (!ok) throw new HttpError(401, "Invalid email or password");
+    const ok = await bcrypt.compare(data.password, user.passwordHash);
+    if (!ok) throw new ApiError(401, "Invalid credentials");
 
-    const token = signToken({
-      userId: user._id.toString(),
-      email: user.email,
-      role: user.role,
-    });
+    const token = signToken({ userId: String(user._id), email: user.email, role: user.role });
 
     return {
       token,
-      user: { id: user._id.toString(), email: user.email, role: user.role },
+      user: { id: String(user._id), email: user.email, name: user.name, role: user.role },
     };
   },
 };

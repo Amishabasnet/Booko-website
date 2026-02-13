@@ -1,76 +1,34 @@
 import { Request, Response } from "express";
-import { ZodError } from "zod";
+import { authService } from "../services/auth.service";
+import { ENV } from "../config/env";
 
-import { UserService } from "../services/user.service";
-import { CreateUserDTO, LoginDto, LoginUserDTO, RegisterDto } from "../dtos/user.dto";
+const cookieOptions = {
+  httpOnly: true,
+  sameSite: "lax" as const,
+  secure: ENV.NODE_ENV === "production",
+  maxAge: 7 * 24 * 60 * 60 * 1000,
+};
 
-const userService = new UserService();
-
-export class AuthController {
+export const authController = {
   async register(req: Request, res: Response) {
-    try {
-      const parsed = RegisterDto.safeParse(req.body);
-
-      if (!parsed.success) {
-        return res.status(400).json({
-          success: false,
-          message: "Validation error",
-          errors: parsed.error.flatten(), // ✅ clean DTO validation response
-        });
-      }
-
-      const userData = parsed.data;
-      const newUser = await userService.createUser(userData);
-
-      return res.status(201).json({
-        success: true,
-        message: "User Created",
-        data: newUser,
-      });
-    } catch (error: any) {
-      return this.handleError(res, error);
-    }
-  }
+    const result = await authService.register(req.body);
+    return res.status(201).json({ success: true, message: "Registered", ...result });
+  },
 
   async login(req: Request, res: Response) {
-    try {
-      const parsed = LoginDto.safeParse(req.body);
+    const result = await authService.login(req.body);
 
-      if (!parsed.success) {
-        return res.status(400).json({
-          success: false,
-          message: "Validation error",
-          errors: parsed.error.flatten(),
-        });
-      }
+    // save token in cookie
+    res.cookie("token", result.token, cookieOptions);
+    // optional: save user info in a non-httpOnly cookie if you want frontend to read it
+    res.cookie("user", JSON.stringify(result.user), { ...cookieOptions, httpOnly: false });
 
-      const loginData = parsed.data;
-      const { token, user } = await userService.loginUser(loginData);
+    return res.json({ success: true, message: "Logged in", user: result.user, token: result.token });
+  },
 
-      return res.status(200).json({
-        success: true,
-        message: "Login successful",
-        data: user,
-        token,
-      });
-    } catch (error: any) {
-      return this.handleError(res, error);
-    }
-  }
-
-  private handleError(res: Response, error: any) {
-    // If you throw ZodError somewhere else in the app
-    if (error instanceof ZodError) {
-      return res.status(400).json({
-        success: false,
-        message: "Validation error",
-        errors: error.flatten(),
-      });
-    }
-
-    return res.status(error?.statusCode ?? error?.status ?? 500).json({
-      success: false,
-      message: error?.message || "Internal Server Error",
-    });
-  }
-}
+  async logout(_req: Request, res: Response) {
+    res.clearCookie("token");
+    res.clearCookie("user");
+    return res.json({ success: true, message: "Logged out" });
+  },
+};
