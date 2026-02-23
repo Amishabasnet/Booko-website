@@ -1,12 +1,16 @@
-import AuthForm from "../components/AuthForm";
+import RegisterForm from "../components/RegisterForm";
 
 export default function RegisterPage() {
   return (
-    <div className="flex h-screen justify-center items-center">
-      <div className="w-96">
-        <h1 className="text-2xl mb-4">Register</h1>
-        <AuthForm type="register" />
-      </div>
-    </div>
+    <>
+      <h1 style={{ margin: 0, fontSize: 22, fontWeight: 900 }}>
+        Create your Booko account 🍿
+      </h1>
+      <p style={{ margin: "8px 0 16px", color: "rgba(255,255,255,0.75)" }}>
+        Join Booko to reserve seats, save favorites, and checkout faster.
+      </p>
+
+      <RegisterForm />
+    </>
   );
 }

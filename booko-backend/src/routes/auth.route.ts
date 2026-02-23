@@ -1,11 +1,13 @@
 import { Router } from "express";
-import { AuthController } from "../controllers/authController";
+import { authController } from "../controllers/authController";
+import { registerValidation, loginValidation } from "../validators/auth.validator";
+import { validateRequest } from "../middlewares/express-validator.middleware";
+import { requireAuth, authorizeRoles } from "../middlewares/auth.middleware";
 
-let authController = new AuthController();
 const router = Router();
 
-router.post("/register", authController.register)
-router.post("/login", authController.login)
-// add remaning routes like login, logout, etc.
+router.post("/register", registerValidation, validateRequest, authController.register);
+router.post("/login", loginValidation, validateRequest, authController.login);
+router.post("/logout", authController.logout);
 
 export default router;

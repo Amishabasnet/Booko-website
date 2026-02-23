@@ -1,7 +1,7 @@
 import z from "zod";
 import { UserSchema } from "../types/user.type";
 // re-use UserSchema from types
-export const CreateUserDTO = UserSchema.pick(
+export const RegisterDto = UserSchema.pick(
     {
         firstName: true,
         lastName: true,
@@ -20,10 +20,10 @@ export const CreateUserDTO = UserSchema.pick(
         path: ["confirmPassword"]
     }
 )
-export type CreateUserDTO = z.infer<typeof CreateUserDTO>;
+export type CreateUserDTO = z.infer<typeof RegisterDto>;
 
-export const LoginUserDTO = z.object({
+export const LoginDto = z.object({
     email: z.email(),
     password: z.string().min(6)
 });
-export type LoginUserDTO = z.infer<typeof LoginUserDTO>;
+export type LoginUserDTO = z.infer<typeof LoginDto>;

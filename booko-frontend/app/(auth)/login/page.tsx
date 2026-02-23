@@ -1,12 +1,16 @@
-import AuthForm from "../components/AuthForm";
+import LoginForm from "../components/LoginForm";
 
 export default function LoginPage() {
   return (
-    <div className="flex h-screen justify-center items-center">
-      <div className="w-96">
-        <h1 className="text-2xl mb-4">Login</h1>
-        <AuthForm type="login" />
-      </div>
-    </div>
+    <>
+      <h1 style={{ margin: 0, fontSize: 22, fontWeight: 900 }}>
+        Welcome back 🎬
+      </h1>
+      <p style={{ margin: "8px 0 16px", color: "rgba(255,255,255,0.75)" }}>
+        Login to continue booking tickets on <b>Booko</b>.
+      </p>
+
+      <LoginForm />
+    </>
   );
 }
