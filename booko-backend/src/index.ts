@@ -8,6 +8,7 @@ import { ENV } from "./config/env";
 
 import authRoutes from "./routes/auth.route";
 import movieRoutes from "./routes/movie.route";
+import theaterRoutes from "./routes/theater.route";
 import adminUserRoutes from "./routes/admin/admin.users.routes";
 
 import { errorMiddleware } from "./middlewares/error.middleware";
@@ -29,6 +30,7 @@ async function bootstrap() {
 
   app.use("/api/auth", authRoutes);
   app.use("/api/movies", movieRoutes);
+  app.use("/api/theaters", theaterRoutes);
   app.use("/api/admin/users", adminUserRoutes);
 
   app.use(errorMiddleware);
