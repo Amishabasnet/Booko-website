@@ -30,7 +30,12 @@ export const showtimeController = {
 
     async checkAvailability(req: Request, res: Response) {
         const { seats } = req.body;
-        const result = await showtimeService.checkSeatAvailability(req.params.id, seats);
-        return res.json({ success: true, ...result });
+        if (seats && Array.isArray(seats) && seats.length > 0) {
+            const result = await showtimeService.checkSeatAvailability(req.params.id, seats);
+            return res.json({ success: true, ...result });
+        } else {
+            const result = await showtimeService.getAvailableSeats(req.params.id);
+            return res.json({ success: true, ...result });
+        }
     }
 };
