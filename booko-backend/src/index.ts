@@ -7,6 +7,7 @@ import { connectDB } from "./database/db";
 import { ENV } from "./config/env";
 
 import authRoutes from "./routes/auth.route";
+import bookingRoutes from "./routes/booking.route";
 import movieRoutes from "./routes/movie.route";
 import theaterRoutes from "./routes/theater.route";
 import screenRoutes from "./routes/screen.route";
@@ -31,6 +32,7 @@ async function bootstrap() {
   app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
   app.use("/api/auth", authRoutes);
+  app.use("/api/bookings", bookingRoutes);
   app.use("/api/movies", movieRoutes);
   app.use("/api/theaters", theaterRoutes);
   app.use("/api/screens", screenRoutes);
