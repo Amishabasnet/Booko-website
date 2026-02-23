@@ -29,6 +29,21 @@ export const authService = {
     };
   },
 
+  async getProfile(userId: string) {
+    const user = await userRepository.findById(userId);
+    if (!user) throw new ApiError(404, "User not found");
+
+    return {
+      id: String(user._id),
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      imageUrl: user.imageUrl,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
+  },
+
   async login(data: LoginDto) {
     const user = await userRepository.findByEmail(data.email);
     if (!user) throw new ApiError(404, "Email not found");

@@ -26,6 +26,14 @@ export const authController = {
     return res.json({ success: true, message: "Logged in", user: result.user, token: result.token });
   },
 
+  async getProfile(req: Request, res: Response) {
+    if (!req.user) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+    const user = await authService.getProfile(req.user.userId);
+    return res.json({ success: true, user });
+  },
+
   async logout(_req: Request, res: Response) {
     res.clearCookie("token");
     res.clearCookie("user");
