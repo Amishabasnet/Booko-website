@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { env } from "./env";
+import { ENV } from "./env";
 
 export type JwtPayload = {
   userId: string;
@@ -8,5 +8,5 @@ export type JwtPayload = {
 };
 
 export function signToken(payload: JwtPayload) {
-  return jwt.sign(payload, env.JWT_SECRET, { expiresIn: env.JWT_EXPIRES_IN });
+  return jwt.sign(payload, ENV.JWT_SECRET, { expiresIn: "7d" });
 }

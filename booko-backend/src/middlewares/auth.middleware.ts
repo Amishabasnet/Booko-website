@@ -29,3 +29,17 @@ export const requireAuth = (req: Request, _res: Response, next: NextFunction) =>
     return next(new ApiError(401, "Unauthorized: invalid token"));
   }
 };
+
+export const authorizeRoles = (roles: string[]) => {
+  return (req: Request, _res: Response, next: NextFunction) => {
+    if (!req.user) {
+      return next(new ApiError(401, "Unauthorized: user not authenticated"));
+    }
+
+    if (!roles.includes(req.user.role)) {
+      return next(new ApiError(403, "Forbidden: insufficient permissions"));
+    }
+
+    next();
+  };
+};

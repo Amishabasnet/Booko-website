@@ -6,7 +6,7 @@ import { userRepository } from "../repositories/user.repository";
 import { RegisterDto, LoginDto } from "../dtos/auth.dto";
 
 function signToken(payload: { userId: string; email: string; role: "user" | "admin" }) {
-  return jwt.sign(payload, ENV.JWT_SECRET, { expiresIn: "7d" });
+  return jwt.sign(payload, ENV.JWT_SECRET, { expiresIn: "1h" });
 }
 
 export const authService = {
@@ -20,8 +20,9 @@ export const authService = {
       email: data.email,
       passwordHash,
       name: data.name || "",
-      role: "user",
+      role: data.role || "user",
     });
+
 
     return {
       user: { id: String(user._id), email: user.email, name: user.name, role: user.role },
