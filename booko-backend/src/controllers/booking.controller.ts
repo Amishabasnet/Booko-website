@@ -19,12 +19,12 @@ export const bookingController = {
         return res.json({ success: true, bookings });
     },
 
-    async getById(req: AuthRequest, res: Response) {
+    async getById(req: Request, res: Response) {
         const booking = await bookingService.getBookingById(req.params.id);
         return res.json({ success: true, booking });
     },
 
-    async updateStatus(req: AuthRequest, res: Response) {
+    async updateStatus(req: Request, res: Response) {
         const userId = req.user!.userId;
         const role = req.user!.role;
         const booking = await bookingService.updateBookingStatus(req.params.id, userId, role, req.body);

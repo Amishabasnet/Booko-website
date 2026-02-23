@@ -59,7 +59,8 @@ export const bookingService = {
         const booking = await this.getBookingById(id);
 
         // RBAC: Only admin or the booking owner can update status
-        if (role !== "admin" && booking.userId.toString() !== userId) {
+        const bookingUserId = (booking.userId as any)._id || booking.userId;
+        if (role !== "admin" && bookingUserId.toString() !== userId) {
             throw new ApiError(403, "You do not have permission to update this booking");
         }
 
