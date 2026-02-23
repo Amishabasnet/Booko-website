@@ -1,11 +1,18 @@
 import mongoose, { Schema, InferSchemaType } from "mongoose";
 
+const SeatSchema = new Schema({
+    row: { type: String, required: true },
+    col: { type: Number, required: true },
+    isAvailable: { type: Boolean, default: true },
+    type: { type: String, enum: ["normal", "premium", "vip"], default: "normal" }
+}, { _id: false });
+
 const ScreenSchema = new Schema(
     {
         theaterId: { type: Schema.Types.ObjectId, ref: "Theater", required: true },
-        screenName: { type: String, required: true },
+        screenName: { type: String, required: true, trim: true },
         totalSeats: { type: Number, required: true },
-        seatLayout: { type: [[Object]], required: true }, // 2D array of seat objects
+        seatLayout: [[SeatSchema]],
     },
     { timestamps: true }
 );
