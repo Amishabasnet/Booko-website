@@ -12,6 +12,7 @@ import theaterRoutes from "./routes/theater.route";
 import screenRoutes from "./routes/screen.route";
 import showtimeRoutes from "./routes/showtime.route";
 import bookingRoutes from "./routes/booking.route";
+import paymentRoutes from "./routes/payment.route";
 import adminUserRoutes from "./routes/admin/admin.users.routes";
 
 import { errorMiddleware } from "./middlewares/error.middleware";
@@ -37,6 +38,7 @@ async function bootstrap() {
   app.use("/api/screens", screenRoutes);
   app.use("/api/showtimes", showtimeRoutes);
   app.use("/api/bookings", bookingRoutes);
+  app.use("/api/payments", paymentRoutes);
   app.use("/api/admin/users", adminUserRoutes);
 
   app.use(errorMiddleware);
