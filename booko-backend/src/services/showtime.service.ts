@@ -1,4 +1,5 @@
 import { showtimeRepository } from "../repositories/showtime.repository";
+import { ShowtimeModel } from "../models/showtime.model";
 import { ApiError } from "../errors/ApiErrors";
 
 export const showtimeService = {
@@ -36,6 +37,33 @@ export const showtimeService = {
         return {
             allAvailable: unavailable.length === 0,
             unavailableSeats: unavailable
+        };
+    },
+
+    async getAvailableSeats(showtimeId: string) {
+        const showtime = await ShowtimeModel.findById(showtimeId).populate("screenId");
+        if (!showtime) throw new ApiError(404, "Showtime not found");
+
+        const screen = showtime.screenId as any; // Populated screen
+        const booked = new Set(showtime.bookedSeats);
+        const availableSeats: string[] = [];
+
+        if (screen && screen.seatLayout) {
+            screen.seatLayout.forEach((row: any[]) => {
+                row.forEach((seat: any) => {
+                    const seatId = `${seat.row}-${seat.col}`;
+                    if (!booked.has(seatId)) {
+                        availableSeats.push(seatId);
+                    }
+                });
+            });
+        }
+
+        return {
+            showtimeId,
+            bookedSeats: showtime.bookedSeats,
+            availableSeats,
+            totalAvailable: availableSeats.length
         };
     }
 };
