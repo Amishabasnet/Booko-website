@@ -2,8 +2,9 @@
 
 import { useEffect, useState, use } from "react";
 import axios from "axios";
-import { getMovieById, getMovieShowtimes } from "@/app/services/movie.service";
+import { getMovieById } from "@/app/services/movie.service";
 import Link from "next/link";
+import Showtimes from "@/app/components/Showtimes";
 
 interface MovieDetail {
     _id: string;
@@ -16,30 +17,17 @@ interface MovieDetail {
     posterImage: string;
 }
 
-interface Showtime {
-    _id: string;
-    showTime: string;
-    showDate: string;
-    ticketPrice: number;
-}
-
 export default function MovieDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
     const [movie, setMovie] = useState<MovieDetail | null>(null);
-    const [showtimes, setShowtimes] = useState<Showtime[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchMovieData = async () => {
             try {
-                const [movieRes, showtimesRes] = await Promise.all([
-                    getMovieById(id),
-                    getMovieShowtimes(id)
-                ]);
-
+                const movieRes = await getMovieById(id);
                 setMovie(movieRes.data.movie);
-                setShowtimes(showtimesRes.data.showtimes);
             } catch (err: unknown) {
                 let message = "Failed to load movie details.";
                 if (axios.isAxiosError(err)) {
@@ -103,35 +91,16 @@ export default function MovieDetailPage({ params }: { params: Promise<{ id: stri
                         <p style={descriptionStyle}>{movie.description}</p>
                     </div>
 
-                    <div style={bookingSectionStyle}>
+                    <div id="showtimes" style={bookingSectionStyle}>
                         <h2 style={subTitleStyle}>Available Showtimes</h2>
-                        <div style={showtimeGridStyle}>
-                            {showtimes.length > 0 ? (
-                                showtimes.map((st) => (
-                                    <Link
-                                        key={st._id}
-                                        href={`/booking/${st._id}`}
-                                        style={showtimeLinkStyle}
-                                    >
-                                        <div style={showtimeBadgeStyle}>
-                                            <span style={timeStyle}>{st.showTime}</span>
-                                            <span style={priceStyle}>${st.ticketPrice}</span>
-                                        </div>
-                                    </Link>
-                                ))
-                            ) : (
-                                <p style={noShowtimeStyle}>Stay tuned! New showtimes coming soon.</p>
-                            )}
-                        </div>
+                        <Showtimes movieId={id} />
 
-                        {showtimes.length > 0 && (
-                            <button
-                                onClick={() => document.getElementById('showtimes')?.scrollIntoView({ behavior: 'smooth' })}
-                                style={bookNowBtnStyle}
-                            >
-                                Book Tickets Now
-                            </button>
-                        )}
+                        <button
+                            onClick={() => document.getElementById("showtimes")?.scrollIntoView({ behavior: "smooth" })}
+                            style={bookNowBtnStyle}
+                        >
+                            Book Tickets Now
+                        </button>
                     </div>
                 </div>
             </div>
