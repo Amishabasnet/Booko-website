@@ -1,20 +1,55 @@
 "use client";
 
-import { use } from "react";
+import { use, useState } from "react";
 import SeatSelection from "@/app/components/SeatSelection";
+import Booking from "@/app/components/Booking";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function BookingPage({ params }: { params: Promise<{ showtimeId: string }> }) {
     const { showtimeId } = use(params);
+    const [step, setStep] = useState<"selection" | "booking">("selection");
+    const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
+    const [totalAmount, setTotalAmount] = useState(0);
+    const router = useRouter();
+
+    const handleConfirmSeats = (seats: string[], amount: number) => {
+        setSelectedSeats(seats);
+        setTotalAmount(amount);
+        setStep("booking");
+    };
+
+    const handleBackToSelection = () => {
+        setStep("selection");
+    };
+
+    const handleBookingSuccess = (bookingId: string) => {
+        router.push(`/booking/success?id=${bookingId}&total=${totalAmount}`);
+    };
 
     return (
         <main style={containerStyle}>
             <header style={headerStyle}>
                 <Link href="/" style={backButtonStyle}>← Cancel & Go Back</Link>
-                <h1 style={titleStyle}>Select Your Seats</h1>
+                <h1 style={titleStyle}>
+                    {step === "selection" ? "Select Your Seats" : "Confirm Your Booking"}
+                </h1>
             </header>
 
-            <SeatSelection showtimeId={showtimeId} />
+            {step === "selection" ? (
+                <SeatSelection
+                    showtimeId={showtimeId}
+                    onConfirm={handleConfirmSeats}
+                />
+            ) : (
+                <Booking
+                    showtimeId={showtimeId}
+                    selectedSeats={selectedSeats}
+                    totalAmount={totalAmount}
+                    onBack={handleBackToSelection}
+                    onSuccess={handleBookingSuccess}
+                />
+            )}
         </main>
     );
 }

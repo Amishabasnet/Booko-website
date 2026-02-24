@@ -22,13 +22,11 @@ interface ShowtimeDetails {
     bookedSeats: string[];
 }
 
-export default function SeatSelection({ showtimeId }: { showtimeId: string }) {
+export default function SeatSelection({ showtimeId, onConfirm }: { showtimeId: string, onConfirm: (seats: string[], price: number) => void }) {
     const [showtime, setShowtime] = useState<ShowtimeDetails | null>(null);
     const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [bookingLoading, setBookingLoading] = useState(false);
-    const router = useRouter();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -58,28 +56,11 @@ export default function SeatSelection({ showtimeId }: { showtimeId: string }) {
         );
     };
 
-    const handleBooking = async () => {
-        if (selectedSeats.length === 0) return;
-        setBookingLoading(true);
-        try {
-            await createBooking({ showtimeId, seats: selectedSeats });
-            router.push("/dashboard?booking=success");
-        } catch (err: unknown) {
-            let message = "Booking failed.";
-            if (axios.isAxiosError(err)) {
-                message = err.response?.data?.message || message;
-            }
-            setError(message);
-        } finally {
-            setBookingLoading(false);
-        }
-    };
+    const totalPrice = showtime ? selectedSeats.length * showtime.ticketPrice : 0;
 
     if (loading) return <div style={messageStyle}>Loading seat map... 🛋️</div>;
     if (error) return <div style={errorStyle}>{error}</div>;
     if (!showtime) return <div style={messageStyle}>Showtime not found.</div>;
-
-    const totalPrice = selectedSeats.length * showtime.ticketPrice;
 
     return (
         <div style={containerStyle}>
@@ -126,14 +107,14 @@ export default function SeatSelection({ showtimeId }: { showtimeId: string }) {
                     <h3 style={totalPriceStyle}>Total: ${totalPrice.toFixed(2)}</h3>
                 </div>
                 <button
-                    onClick={handleBooking}
-                    disabled={selectedSeats.length === 0 || bookingLoading}
+                    onClick={() => onConfirm(selectedSeats, totalPrice)}
+                    disabled={selectedSeats.length === 0}
                     style={{
                         ...bookingBtnStyle,
-                        opacity: selectedSeats.length === 0 || bookingLoading ? 0.5 : 1,
+                        opacity: selectedSeats.length === 0 ? 0.5 : 1,
                     }}
                 >
-                    {bookingLoading ? "Processing..." : "Confirm Booking"}
+                    Review & Pay
                 </button>
             </div>
         </div>

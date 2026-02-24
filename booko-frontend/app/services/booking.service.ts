@@ -10,5 +10,11 @@ const getAuthHeader = () => {
 export const getShowtimeDetails = (id: string) =>
     axios.get(`${API_URL}/showtimes/${id}`);
 
-export const createBooking = (data: { showtimeId: string, seats: string[] }) =>
+export const createBooking = (data: { showtimeId: string, selectedSeats: string[] }) =>
     axios.post(`${API_URL}/bookings`, data, { headers: getAuthHeader() });
+
+export const initiatePayment = (bookingId: string, paymentMethod: string) =>
+    axios.post(`${API_URL}/payments/${bookingId}`, { paymentMethod }, { headers: getAuthHeader() });
+
+export const updatePaymentStatus = (bookingId: string, status: string) =>
+    axios.put(`${API_URL}/bookings/${bookingId}/status`, { paymentStatus: status }, { headers: getAuthHeader() });
