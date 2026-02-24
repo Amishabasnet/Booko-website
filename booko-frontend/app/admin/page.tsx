@@ -12,33 +12,26 @@ export default function AdminPage() {
 
     return (
         <ProtectedRoute role="admin">
-            <main style={{ padding: "40px 5%", fontFamily: "'Inter', system-ui, sans-serif", color: "white", background: "#0a0a0a", minHeight: "100vh" }}>
-                <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "40px" }}>
+            <main className="px-[5%] py-10 font-sans text-white bg-background min-h-screen">
+                <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 sm:gap-0 mb-10">
                     <div>
-                        <h1 style={{ margin: 0, fontSize: "32px", fontWeight: 900 }}>Admin Dashboard 🛡️</h1>
-                        <p style={{ color: "rgba(255, 255, 255, 0.5)", marginTop: "8px" }}>Welcome, {user?.name}. You have admin privileges.</p>
+                        <h1 className="m-0 text-3xl font-black tracking-tight leading-tight">Admin Dashboard 🛡️</h1>
+                        <p className="text-white/50 mt-2 text-sm leading-relaxed">Welcome, {user?.name}. You have admin privileges.</p>
                     </div>
-                    <div style={{ display: "flex", gap: "15px", alignItems: "center" }}>
-                        <Link href="/" style={{ color: "rgba(255, 255, 255, 0.4)", textDecoration: "none", fontWeight: 600 }}>Back to Home</Link>
+                    <div className="flex flex-wrap items-center gap-4 sm:gap-6">
+                        <Link href="/" className="text-white/40 hover:text-white no-underline font-semibold text-sm transition-colors">
+                            Back to Home
+                        </Link>
                         <button
                             onClick={logout}
-                            style={{
-                                padding: "12px 24px",
-                                borderRadius: "12px",
-                                border: "none",
-                                background: "#e50914",
-                                color: "white",
-                                cursor: "pointer",
-                                fontWeight: 800,
-                                boxShadow: "0 4px 12px rgba(229, 9, 20, 0.2)",
-                            }}
+                            className="bg-primary hover:bg-primary/90 text-white px-6 py-2.5 rounded-xl border-none cursor-pointer font-black text-sm shadow-xl shadow-primary/20 transition-all active:scale-95"
                         >
                             Logout
                         </button>
                     </div>
                 </header>
 
-                <div style={{ display: "grid", gap: "60px" }}>
+                <div className="grid grid-cols-1 gap-12 lg:gap-16">
                     <AdminMovieManagement />
                     <AdminTheaterShowtimeManagement />
                     <AdminBookings />

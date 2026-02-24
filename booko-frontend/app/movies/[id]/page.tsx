@@ -5,6 +5,8 @@ import axios from "axios";
 import { getMovieById } from "@/app/services/movie.service";
 import Link from "next/link";
 import Showtimes from "@/app/components/Showtimes";
+import Loader from "@/app/components/ui/Loader";
+import ErrorMessage from "@/app/components/ui/ErrorMessage";
 
 interface MovieDetail {
     _id: string;
@@ -42,62 +44,70 @@ export default function MovieDetailPage({ params }: { params: Promise<{ id: stri
         fetchMovieData();
     }, [id]);
 
-    if (loading) return <div style={messageStyle}>Curating details for you... ✨</div>;
-    if (error) return <div style={errorStyle}>{error}</div>;
-    if (!movie) return <div style={messageStyle}>Movie not found.</div>;
+    if (loading) return <Loader message="Curating details for you... ✨" />;
+    if (error) return <ErrorMessage message={error} />;
+    if (!movie) return <div className="text-center py-20 text-white/50 text-lg font-medium">Movie not found.</div>;
 
     return (
-        <main style={containerStyle}>
-            <header style={headerStyle}>
-                <Link href="/" style={backButtonStyle}>← Back to Movies</Link>
+        <main className="bg-background min-h-screen text-white font-sans p-5 md:p-10 lg:p-20">
+            <header className="mb-10">
+                <Link href="/" className="text-white/60 hover:text-white no-underline text-sm font-semibold transition-colors flex items-center gap-2">
+                    <span className="text-lg">←</span> Back to Movies
+                </Link>
             </header>
 
-            <div style={detailGridStyle}>
-                <div style={posterSectionStyle}>
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-10 lg:gap-20 items-start max-w-7xl mx-auto">
+                <div className="lg:sticky lg:top-10">
                     {movie.posterImage ? (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={movie.posterImage} alt={movie.title} style={posterStyle} />
+                        <img src={movie.posterImage} alt={movie.title} className="w-full rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/10" />
                     ) : (
-                        <div style={posterPlaceholderStyle}>No Poster Available</div>
+                        <div className="aspect-[2/3] bg-white/5 rounded-3xl flex items-center justify-center text-white/30 text-lg font-bold border border-white/5">
+                            No Poster Available
+                        </div>
                     )}
                 </div>
 
-                <div style={infoSectionStyle}>
-                    <div style={badgeContainerStyle}>
-                        {movie.genre.map((g) => (
-                            <span key={g} style={genreBadgeStyle}>{g}</span>
-                        ))}
+                <div className="grid gap-10 md:gap-14">
+                    <div>
+                        <div className="flex flex-wrap gap-2.5 mb-6">
+                            {movie.genre.map((g) => (
+                                <span key={g} className="bg-primary/10 text-primary py-1.5 px-5 rounded-full text-xs font-black uppercase tracking-widest border border-primary/20">
+                                    {g}
+                                </span>
+                            ))}
+                        </div>
+
+                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-black mb-0 tracking-tight leading-[1.1]">{movie.title}</h1>
                     </div>
 
-                    <h1 style={titleStyle}>{movie.title}</h1>
-
-                    <div style={metaGridStyle}>
-                        <div style={metaItemStyle}>
-                            <label style={metaLabelStyle}>Duration</label>
-                            <span>{movie.duration} mins</span>
+                    <div className="flex flex-wrap gap-10 md:gap-16 border-b border-white/10 pb-10">
+                        <div className="grid gap-1">
+                            <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Duration</label>
+                            <span className="text-lg font-medium">{movie.duration} mins</span>
                         </div>
-                        <div style={metaItemStyle}>
-                            <label style={metaLabelStyle}>Language</label>
-                            <span>{movie.language}</span>
+                        <div className="grid gap-1">
+                            <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Language</label>
+                            <span className="text-lg font-medium">{movie.language}</span>
                         </div>
-                        <div style={metaItemStyle}>
-                            <label style={metaLabelStyle}>Release Date</label>
-                            <span>{new Date(movie.releaseDate).toLocaleDateString()}</span>
+                        <div className="grid gap-1">
+                            <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Release Date</label>
+                            <span className="text-lg font-medium">{new Date(movie.releaseDate).toLocaleDateString()}</span>
                         </div>
                     </div>
 
-                    <div style={descriptionSectionStyle}>
-                        <h2 style={subTitleStyle}>Synopsis</h2>
-                        <p style={descriptionStyle}>{movie.description}</p>
+                    <div className="grid gap-4">
+                        <h2 className="text-xl md:text-2xl font-black text-white tracking-tight">Synopsis</h2>
+                        <p className="text-base md:text-lg leading-relaxed text-white/70 m-0">{movie.description}</p>
                     </div>
 
-                    <div id="showtimes" style={bookingSectionStyle}>
-                        <h2 style={subTitleStyle}>Available Showtimes</h2>
+                    <div id="showtimes" className="bg-white/5 p-8 md:p-10 rounded-3xl border border-white/10 shadow-xl">
+                        <h2 className="text-xl md:text-2xl font-black mb-8 text-white tracking-tight">Available Showtimes</h2>
                         <Showtimes movieId={id} />
 
                         <button
                             onClick={() => document.getElementById("showtimes")?.scrollIntoView({ behavior: "smooth" })}
-                            style={bookNowBtnStyle}
+                            className="w-full mt-10 py-4 md:py-5 rounded-2xl bg-primary shadow-xl shadow-primary/30 text-white border-none text-base md:text-lg font-black cursor-pointer transition-all active:scale-[0.98] uppercase tracking-wide hover:bg-primary/90"
                         >
                             Book Tickets Now
                         </button>
@@ -107,193 +117,3 @@ export default function MovieDetailPage({ params }: { params: Promise<{ id: stri
         </main>
     );
 }
-
-const containerStyle: React.CSSProperties = {
-    background: "#0a0a0a",
-    minHeight: "100vh",
-    color: "white",
-    fontFamily: "'Inter', system-ui, sans-serif",
-    padding: "40px 5%",
-};
-
-const headerStyle: React.CSSProperties = {
-    marginBottom: "40px",
-};
-
-const backButtonStyle: React.CSSProperties = {
-    color: "rgba(255, 255, 255, 0.6)",
-    textDecoration: "none",
-    fontSize: "14px",
-    fontWeight: 600,
-    transition: "color 0.2s",
-};
-
-const detailGridStyle: React.CSSProperties = {
-    display: "grid",
-    gridTemplateColumns: "1fr 2fr",
-    gap: "60px",
-    alignItems: "start",
-};
-
-const posterSectionStyle: React.CSSProperties = {
-    position: "sticky",
-    top: "40px",
-};
-
-const posterStyle: React.CSSProperties = {
-    width: "100%",
-    borderRadius: "24px",
-    boxShadow: "0 20px 50px rgba(0,0,0,0.5)",
-    border: "1px solid rgba(255, 255, 255, 0.1)",
-};
-
-const posterPlaceholderStyle: React.CSSProperties = {
-    aspectRatio: "2/3",
-    background: "rgba(255, 255, 255, 0.05)",
-    borderRadius: "24px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    color: "rgba(255, 255, 255, 0.3)",
-};
-
-const infoSectionStyle: React.CSSProperties = {
-    display: "grid",
-    gap: "32px",
-};
-
-const badgeContainerStyle: React.CSSProperties = {
-    display: "flex",
-    gap: "10px",
-};
-
-const genreBadgeStyle: React.CSSProperties = {
-    background: "rgba(229, 9, 20, 0.1)",
-    color: "#e50914",
-    padding: "6px 16px",
-    borderRadius: "100px",
-    fontSize: "12px",
-    fontWeight: 800,
-    textTransform: "uppercase",
-    letterSpacing: "0.05em",
-};
-
-const titleStyle: React.CSSProperties = {
-    fontSize: "48px",
-    fontWeight: 900,
-    margin: 0,
-    letterSpacing: "-0.03em",
-};
-
-const metaGridStyle: React.CSSProperties = {
-    display: "flex",
-    gap: "40px",
-    borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
-    paddingBottom: "32px",
-};
-
-const metaItemStyle: React.CSSProperties = {
-    display: "grid",
-    gap: "4px",
-};
-
-const metaLabelStyle: React.CSSProperties = {
-    fontSize: "12px",
-    fontWeight: 700,
-    color: "rgba(255, 255, 255, 0.4)",
-    textTransform: "uppercase",
-};
-
-const descriptionSectionStyle: React.CSSProperties = {};
-
-const subTitleStyle: React.CSSProperties = {
-    fontSize: "20px",
-    fontWeight: 800,
-    marginBottom: "16px",
-    color: "#fff",
-};
-
-const descriptionStyle: React.CSSProperties = {
-    fontSize: "16px",
-    lineHeight: 1.8,
-    color: "rgba(255, 255, 255, 0.7)",
-    margin: 0,
-};
-
-const bookingSectionStyle: React.CSSProperties = {
-    background: "rgba(255, 255, 255, 0.03)",
-    padding: "32px",
-    borderRadius: "24px",
-    border: "1px solid rgba(255, 255, 255, 0.08)",
-};
-
-const showtimeGridStyle: React.CSSProperties = {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: "12px",
-    marginBottom: "32px",
-};
-
-const showtimeLinkStyle: React.CSSProperties = {
-    textDecoration: "none",
-};
-
-const showtimeBadgeStyle: React.CSSProperties = {
-    background: "rgba(255, 255, 255, 0.05)",
-    border: "1px solid rgba(255, 255, 255, 0.1)",
-    padding: "16px 24px",
-    borderRadius: "16px",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    gap: "4px",
-    transition: "all 0.2s ease",
-};
-
-const timeStyle: React.CSSProperties = {
-    fontSize: "18px",
-    fontWeight: 800,
-    color: "#fff",
-};
-
-const priceStyle: React.CSSProperties = {
-    fontSize: "12px",
-    fontWeight: 600,
-    color: "rgba(255, 255, 255, 0.5)",
-};
-
-const noShowtimeStyle: React.CSSProperties = {
-    color: "rgba(255, 255, 255, 0.4)",
-    fontStyle: "italic",
-};
-
-const bookNowBtnStyle: React.CSSProperties = {
-    width: "100%",
-    padding: "18px",
-    borderRadius: "16px",
-    background: "#e50914",
-    color: "white",
-    border: "none",
-    fontSize: "16px",
-    fontWeight: 800,
-    cursor: "pointer",
-    boxShadow: "0 10px 30px rgba(229, 9, 20, 0.3)",
-};
-
-const messageStyle: React.CSSProperties = {
-    textAlign: "center",
-    padding: "100px",
-    color: "white",
-    fontSize: "20px",
-};
-
-const errorStyle: React.CSSProperties = {
-    background: "rgba(255, 77, 79, 0.1)",
-    color: "#ff4d4f",
-    padding: "24px",
-    borderRadius: "16px",
-    textAlign: "center",
-    margin: "40px auto",
-    maxWidth: "600px",
-    border: "1px solid rgba(255, 77, 79, 0.2)",
-};

@@ -197,107 +197,109 @@ export default function AdminTheaterShowtimeManagement() {
     if (error) return <ErrorMessage message={error} onRetry={fetchInitialData} />;
 
     return (
-        <section style={containerStyle}>
-            <div style={tabGroupStyle}>
+        <section className="mt-10">
+            <div className="flex flex-wrap gap-2.5 mb-8">
                 <button
                     onClick={() => setActiveTab("theaters")}
-                    style={activeTab === "theaters" ? activeTabStyle : tabStyle}
+                    className={`py-3 px-6 rounded-2xl font-bold cursor-pointer transition-all border ${activeTab === "theaters" ? "bg-primary text-white border-primary shadow-lg shadow-primary/20" : "bg-white/5 text-white/50 border-white/10 hover:bg-white/10"}`}
                 >
                     Theaters & Screens
                 </button>
                 <button
                     onClick={() => setActiveTab("showtimes")}
-                    style={activeTab === "showtimes" ? activeTabStyle : tabStyle}
+                    className={`py-3 px-6 rounded-2xl font-bold cursor-pointer transition-all border ${activeTab === "showtimes" ? "bg-primary text-white border-primary shadow-lg shadow-primary/20" : "bg-white/5 text-white/50 border-white/10 hover:bg-white/10"}`}
                 >
                     Showtimes
                 </button>
             </div>
 
-            {error && <div style={errorStyle}>{error}</div>}
-            {success && <div style={successStyle}>{success}</div>}
+            {error && <div className="bg-red-500/10 text-red-500 p-4 rounded-xl mb-6 text-sm border border-red-500/10">{error}</div>}
+            {success && <div className="bg-green-500/10 text-green-500 p-4 rounded-xl mb-6 text-sm border border-green-500/10">{success}</div>}
 
             {activeTab === "theaters" ? (
-                <div style={paneStyle}>
-                    <div style={paneHeaderStyle}>
-                        <h3>All Theaters</h3>
-                        <button onClick={() => { setIsEditing(false); setTheaterForm({ name: "", location: "", totalScreens: 1 }); setTheaterModalOpen(true); }} style={addBtnStyle}>+ Add Theater</button>
+                <div className="bg-white/5 rounded-3xl p-6 md:p-8 border border-white/5 shadow-inner animate-in slide-in-from-left duration-300">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+                        <h3 className="text-xl font-black m-0 tracking-tight">All Theaters</h3>
+                        <button onClick={() => { setIsEditing(false); setTheaterForm({ name: "", location: "", totalScreens: 1 }); setTheaterModalOpen(true); }} className="bg-green-500 hover:bg-green-600 text-sm py-2.5 px-6 rounded-xl font-bold cursor-pointer text-white border-none shadow-lg shadow-green-500/20 transition-all active:scale-95">+ Add Theater</button>
                     </div>
-                    <table style={tableStyle}>
-                        <thead>
-                            <tr>
-                                <th style={thStyle}>Name</th>
-                                <th style={thStyle}>Location</th>
-                                <th style={thStyle}>Screens</th>
-                                <th style={thStyle}>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {theaters.map(t => (
-                                <tr key={t._id} style={trStyle}>
-                                    <td style={tdStyle}>{t.name}</td>
-                                    <td style={tdStyle}>{t.location}</td>
-                                    <td style={tdStyle}>{t.totalScreens}</td>
-                                    <td style={tdStyle}>
-                                        <div style={btnGroupStyle}>
-                                            <button onClick={() => openScreenModal(t._id)} style={smallBtnStyle}>Manage Screens</button>
-                                            <button onClick={() => { setIsEditing(true); setCurrentId(t._id); setTheaterForm({ name: t.name, location: t.location, totalScreens: t.totalScreens }); setTheaterModalOpen(true); }} style={smallBtnStyle}>Edit</button>
-                                            <button onClick={() => handleDeleteTheater(t._id)} style={deleteBtnSmallStyle}>Delete</button>
-                                        </div>
-                                    </td>
+                    <div className="overflow-x-auto -mx-6 md:mx-0">
+                        <table className="w-full border-collapse text-left min-w-[600px]">
+                            <thead>
+                                <tr className="border-b border-white/10">
+                                    <th className="p-4 text-white/40 font-bold text-xs uppercase tracking-widest">Name</th>
+                                    <th className="p-4 text-white/40 font-bold text-xs uppercase tracking-widest">Location</th>
+                                    <th className="p-4 text-white/40 font-bold text-xs uppercase tracking-widest">Screens</th>
+                                    <th className="p-4 text-white/40 font-bold text-xs uppercase tracking-widest text-right">Actions</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody className="divide-y divide-white/5">
+                                {theaters.map(t => (
+                                    <tr key={t._id} className="hover:bg-white/[0.02] transition-colors group">
+                                        <td className="p-4 text-sm font-semibold">{t.name}</td>
+                                        <td className="p-4 text-xs text-white/60">{t.location}</td>
+                                        <td className="p-4 text-xs text-white/60">{t.totalScreens}</td>
+                                        <td className="p-4 text-right">
+                                            <div className="flex justify-end gap-2 group-hover:translate-x-0 transition-transform">
+                                                <button onClick={() => openScreenModal(t._id)} className="bg-white/5 hover:bg-white/10 text-white/70 hover:text-white py-1.5 px-3 rounded-lg text-xs font-bold border border-white/10 transition-colors">Manage Screens</button>
+                                                <button onClick={() => { setIsEditing(true); setCurrentId(t._id); setTheaterForm({ name: t.name, location: t.location, totalScreens: t.totalScreens }); setTheaterModalOpen(true); }} className="bg-white/5 hover:bg-white/10 text-white/70 hover:text-white py-1.5 px-3 rounded-lg text-xs font-bold border border-white/10 transition-colors">Edit</button>
+                                                <button onClick={() => handleDeleteTheater(t._id)} className="bg-primary/10 hover:bg-primary/20 text-primary py-1.5 px-3 rounded-lg text-xs font-bold border border-primary/20 transition-colors">Delete</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             ) : (
-                <div style={paneStyle}>
-                    <div style={paneHeaderStyle}>
-                        <h3>Showtime Schedules</h3>
-                        <button onClick={() => { setIsEditing(false); setShowtimeForm({ movieId: "", theaterId: "", screenId: "", showDate: "", showTime: "", ticketPrice: 0 }); setShowtimeModalOpen(true); }} style={addBtnStyle}>+ Schedule Movie</button>
+                <div className="bg-white/5 rounded-3xl p-6 md:p-8 border border-white/5 shadow-inner animate-in slide-in-from-right duration-300">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+                        <h3 className="text-xl font-black m-0 tracking-tight">Showtime Schedules</h3>
+                        <button onClick={() => { setIsEditing(false); setShowtimeForm({ movieId: "", theaterId: "", screenId: "", showDate: "", showTime: "", ticketPrice: 0 }); setShowtimeModalOpen(true); }} className="bg-green-500 hover:bg-green-600 text-sm py-2.5 px-6 rounded-xl font-bold cursor-pointer text-white border-none shadow-lg shadow-green-500/20 transition-all active:scale-95">+ Schedule Movie</button>
                     </div>
-                    <table style={tableStyle}>
-                        <thead>
-                            <tr>
-                                <th style={thStyle}>Movie</th>
-                                <th style={thStyle}>Theater</th>
-                                <th style={thStyle}>Screen</th>
-                                <th style={thStyle}>Time</th>
-                                <th style={thStyle}>Price</th>
-                                <th style={thStyle}>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {showtimes.map(s => (
-                                <tr key={s._id} style={trStyle}>
-                                    <td style={tdStyle}>{s.movieId?.title}</td>
-                                    <td style={tdStyle}>{s.theaterId?.name}</td>
-                                    <td style={tdStyle}>{s.screenId?.screenName}</td>
-                                    <td style={tdStyle}>{new Date(s.showDate).toLocaleDateString()} {s.showTime}</td>
-                                    <td style={tdStyle}>${s.ticketPrice}</td>
-                                    <td style={tdStyle}>
-                                        <div style={btnGroupStyle}>
-                                            <button onClick={() => handleDeleteShowtime(s._id)} style={deleteBtnSmallStyle}>Delete</button>
-                                        </div>
-                                    </td>
+                    <div className="overflow-x-auto -mx-6 md:mx-0">
+                        <table className="w-full border-collapse text-left min-w-[800px]">
+                            <thead>
+                                <tr className="border-b border-white/10">
+                                    <th className="p-4 text-white/40 font-bold text-xs uppercase tracking-widest">Movie</th>
+                                    <th className="p-4 text-white/40 font-bold text-xs uppercase tracking-widest">Theater</th>
+                                    <th className="p-4 text-white/40 font-bold text-xs uppercase tracking-widest">Screen</th>
+                                    <th className="p-4 text-white/40 font-bold text-xs uppercase tracking-widest">Time</th>
+                                    <th className="p-4 text-white/40 font-bold text-xs uppercase tracking-widest">Price</th>
+                                    <th className="p-4 text-white/40 font-bold text-xs uppercase tracking-widest text-right">Actions</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody className="divide-y divide-white/5">
+                                {showtimes.map(s => (
+                                    <tr key={s._id} className="hover:bg-white/[0.02] transition-colors">
+                                        <td className="p-4 text-sm font-semibold">{s.movieId?.title}</td>
+                                        <td className="p-4 text-xs text-white/60">{s.theaterId?.name}</td>
+                                        <td className="p-4 text-xs text-white/60">{s.screenId?.screenName}</td>
+                                        <td className="p-4 text-xs text-white/60">{new Date(s.showDate).toLocaleDateString()} {s.showTime}</td>
+                                        <td className="p-4 text-xs text-white/60">${s.ticketPrice}</td>
+                                        <td className="p-4 text-right">
+                                            <button onClick={() => handleDeleteShowtime(s._id)} className="bg-primary/10 hover:bg-primary/20 text-primary py-1.5 px-4 rounded-lg text-xs font-bold border border-primary/20 transition-colors">Delete</button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             )}
 
             {/* Theater Modal */}
             {theaterModalOpen && (
-                <div style={modalOverlayStyle}>
-                    <div style={modalContentStyle}>
-                        <h3>{isEditing ? "Edit Theater" : "Add Theater"}</h3>
-                        <form onSubmit={handleTheaterSubmit} style={formStyle}>
-                            <input placeholder="Name" value={theaterForm.name} onChange={e => setTheaterForm({ ...theaterForm, name: e.target.value })} style={inputStyle} required />
-                            <input placeholder="Location" value={theaterForm.location} onChange={e => setTheaterForm({ ...theaterForm, location: e.target.value })} style={inputStyle} required />
-                            <input type="number" placeholder="Total Screens" value={theaterForm.totalScreens} onChange={e => setTheaterForm({ ...theaterForm, totalScreens: parseInt(e.target.value) })} style={inputStyle} required />
-                            <div style={modalActionsStyle}>
-                                <button type="button" onClick={() => setTheaterModalOpen(false)} style={cancelBtnStyle}>Cancel</button>
-                                <button type="submit" style={submitBtnStyle}>Save</button>
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex justify-center items-center z-[1000] p-5 animate-in fade-in duration-300">
+                    <div className="bg-[#0a0a0a] border border-white/10 rounded-[32px] p-8 md:p-10 w-full max-w-md shadow-2xl animate-in zoom-in-95 duration-300">
+                        <h3 className="text-2xl font-black mb-8 tracking-tight">{isEditing ? "Edit Theater" : "Add Theater"}</h3>
+                        <form onSubmit={handleTheaterSubmit} className="flex flex-col gap-5">
+                            <input placeholder="Name" value={theaterForm.name} onChange={e => setTheaterForm({ ...theaterForm, name: e.target.value })} className="bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm focus:border-primary/50 focus:outline-none transition-colors" required />
+                            <input placeholder="Location" value={theaterForm.location} onChange={e => setTheaterForm({ ...theaterForm, location: e.target.value })} className="bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm focus:border-primary/50 focus:outline-none transition-colors" required />
+                            <input type="number" placeholder="Total Screens" value={theaterForm.totalScreens} onChange={e => setTheaterForm({ ...theaterForm, totalScreens: parseInt(e.target.value) })} className="bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm focus:border-primary/50 focus:outline-none transition-colors" required />
+                            <div className="flex justify-end gap-3 mt-4">
+                                <button type="button" onClick={() => setTheaterModalOpen(false)} className="text-white/50 hover:text-white py-3 px-6 text-sm font-bold transition-colors">Cancel</button>
+                                <button type="submit" className="bg-primary hover:bg-primary/90 text-white py-3 px-8 rounded-xl font-bold text-sm shadow-xl shadow-primary/20 transition-all active:scale-95 uppercase tracking-wide">Save</button>
                             </div>
                         </form>
                     </div>
@@ -306,57 +308,59 @@ export default function AdminTheaterShowtimeManagement() {
 
             {/* Screens Modal */}
             {screenModalOpen && (
-                <div style={modalOverlayStyle}>
-                    <div style={modalContentStyle}>
-                        <h3>Screens for Theater</h3>
-                        <form onSubmit={handleAddScreen} style={inlineFormStyle}>
-                            <input placeholder="Screen Name (e.g. IMAX 1)" value={screenForm.screenName} onChange={e => setScreenForm({ ...screenForm, screenName: e.target.value })} style={inputStyle} required />
-                            <button type="submit" style={addBtnStyle}>Add</button>
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex justify-center items-center z-[1000] p-5 animate-in fade-in duration-300">
+                    <div className="bg-[#0a0a0a] border border-white/10 rounded-[32px] p-8 md:p-10 w-full max-w-lg shadow-2xl animate-in zoom-in-95 duration-300">
+                        <h3 className="text-2xl font-black mb-6 tracking-tight">Screens for Theater</h3>
+                        <form onSubmit={handleAddScreen} className="flex gap-3 mb-8">
+                            <input placeholder="Screen Name (e.g. IMAX 1)" value={screenForm.screenName} onChange={e => setScreenForm({ ...screenForm, screenName: e.target.value })} className="flex-1 bg-white/5 border border-white/10 rounded-xl p-3 text-white text-sm focus:border-primary/50 focus:outline-none transition-colors" required />
+                            <button type="submit" className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-xl font-bold text-sm transition-all active:scale-95">Add</button>
                         </form>
-                        <div style={{ maxHeight: "300px", overflowY: "auto", marginTop: "20px" }}>
-                            {screens.map(sc => (
-                                <div key={sc._id} style={listItemStyle}>
-                                    <span>{sc.screenName} ({sc.totalSeats} seats)</span>
-                                    <button onClick={async () => { await deleteScreen(sc._id); setSelectedTheaterId(sc.theaterId); openScreenModal(sc.theaterId); }} style={deleteBtnSmallStyle}>Remove</button>
+                        <div className="max-h-[300px] overflow-y-auto pr-2 grid gap-3 mb-8">
+                            {screens.length > 0 ? screens.map(sc => (
+                                <div key={sc._id} className="flex justify-between items-center p-4 bg-white/[0.03] border border-white/5 rounded-2xl hover:bg-white/[0.05] transition-colors">
+                                    <span className="text-sm font-medium">{sc.screenName} <span className="text-white/30 ml-2">({sc.totalSeats} seats)</span></span>
+                                    <button onClick={async () => { await deleteScreen(sc._id); setSelectedTheaterId(sc.theaterId); openScreenModal(sc.theaterId); }} className="text-primary hover:text-primary/80 text-xs font-bold uppercase tracking-widest px-3 py-1.5 rounded-lg bg-primary/10 transition-colors">Remove</button>
                                 </div>
-                            ))}
+                            )) : (
+                                <p className="text-center py-10 text-white/30 text-sm italic">No screens added yet.</p>
+                            )}
                         </div>
-                        <button onClick={() => setScreenModalOpen(false)} style={{ ...cancelBtnStyle, width: "100%", marginTop: "20px" }}>Close</button>
+                        <button onClick={() => setScreenModalOpen(false)} className="w-full text-white/50 hover:text-white py-4 border border-white/10 rounded-2xl text-sm font-bold transition-all hover:bg-white/5">Close</button>
                     </div>
                 </div>
             )}
 
             {/* Showtime Modal */}
             {showtimeModalOpen && (
-                <div style={modalOverlayStyle}>
-                    <div style={modalContentStyle}>
-                        <h3>Schedule Showtime</h3>
-                        <form onSubmit={handleShowtimeSubmit} style={formStyle}>
-                            <select value={showtimeForm.movieId} onChange={e => setShowtimeForm({ ...showtimeForm, movieId: e.target.value })} style={inputStyle} required>
-                                <option value="">Select Movie</option>
-                                {movies.map(m => <option key={m._id} value={m._id}>{m.title}</option>)}
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex justify-center items-center z-[1000] p-5 animate-in fade-in duration-300">
+                    <div className="bg-[#0a0a0a] border border-white/10 rounded-[32px] p-8 md:p-10 w-full max-w-md shadow-2xl animate-in zoom-in-95 duration-300">
+                        <h3 className="text-2xl font-black mb-8 tracking-tight">Schedule Showtime</h3>
+                        <form onSubmit={handleShowtimeSubmit} className="flex flex-col gap-5">
+                            <select value={showtimeForm.movieId} onChange={e => setShowtimeForm({ ...showtimeForm, movieId: e.target.value })} className="bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm focus:border-primary/50 focus:outline-none transition-colors appearance-none" required>
+                                <option value="" className="bg-background">Select Movie</option>
+                                {movies.map(m => <option key={m._id} value={m._id} className="bg-background">{m.title}</option>)}
                             </select>
                             <select value={showtimeForm.theaterId} onChange={async (e) => {
                                 const tid = e.target.value;
                                 setShowtimeForm({ ...showtimeForm, theaterId: tid, screenId: "" });
                                 const res = await getScreensByTheater(tid);
                                 setScreens(res.data.screens);
-                            }} style={inputStyle} required>
-                                <option value="">Select Theater</option>
-                                {theaters.map(t => <option key={t._id} value={t._id}>{t.name}</option>)}
+                            }} className="bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm focus:border-primary/50 focus:outline-none transition-colors appearance-none" required>
+                                <option value="" className="bg-background">Select Theater</option>
+                                {theaters.map(t => <option key={t._id} value={t._id} className="bg-background">{t.name}</option>)}
                             </select>
-                            <select value={showtimeForm.screenId} onChange={e => setShowtimeForm({ ...showtimeForm, screenId: e.target.value })} style={inputStyle} required disabled={!showtimeForm.theaterId}>
-                                <option value="">Select Screen</option>
-                                {screens.map(sc => <option key={sc._id} value={sc._id}>{sc.screenName}</option>)}
+                            <select value={showtimeForm.screenId} onChange={e => setShowtimeForm({ ...showtimeForm, screenId: e.target.value })} className="bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm focus:border-primary/50 focus:outline-none transition-colors appearance-none disabled:opacity-30 disabled:cursor-not-allowed" required disabled={!showtimeForm.theaterId}>
+                                <option value="" className="bg-background">Select Screen</option>
+                                {screens.map(sc => <option key={sc._id} value={sc._id} className="bg-background">{sc.screenName}</option>)}
                             </select>
-                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-                                <input type="date" value={showtimeForm.showDate} onChange={e => setShowtimeForm({ ...showtimeForm, showDate: e.target.value })} style={inputStyle} required />
-                                <input type="time" value={showtimeForm.showTime} onChange={e => setShowtimeForm({ ...showtimeForm, showTime: e.target.value })} style={inputStyle} required />
+                            <div className="grid grid-cols-2 gap-4">
+                                <input type="date" value={showtimeForm.showDate} onChange={e => setShowtimeForm({ ...showtimeForm, showDate: e.target.value })} className="bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm focus:border-primary/50 focus:outline-none transition-colors" required />
+                                <input type="time" value={showtimeForm.showTime} onChange={e => setShowtimeForm({ ...showtimeForm, showTime: e.target.value })} className="bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm focus:border-primary/50 focus:outline-none transition-colors" required />
                             </div>
-                            <input type="number" placeholder="Ticket Price" value={showtimeForm.ticketPrice} onChange={e => setShowtimeForm({ ...showtimeForm, ticketPrice: parseFloat(e.target.value) })} style={inputStyle} required />
-                            <div style={modalActionsStyle}>
-                                <button type="button" onClick={() => setShowtimeModalOpen(false)} style={cancelBtnStyle}>Cancel</button>
-                                <button type="submit" style={submitBtnStyle}>Schedule</button>
+                            <input type="number" placeholder="Ticket Price" value={showtimeForm.ticketPrice} onChange={e => setShowtimeForm({ ...showtimeForm, ticketPrice: parseFloat(e.target.value) })} className="bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm focus:border-primary/50 focus:outline-none transition-colors" required />
+                            <div className="flex justify-end gap-3 mt-4">
+                                <button type="button" onClick={() => setShowtimeModalOpen(false)} className="text-white/50 hover:text-white py-3 px-6 text-sm font-bold transition-colors">Cancel</button>
+                                <button type="submit" className="bg-primary hover:bg-primary/90 text-white py-3 px-8 rounded-xl font-bold text-sm shadow-xl shadow-primary/20 transition-all active:scale-95 uppercase tracking-wide">Schedule</button>
                             </div>
                         </form>
                     </div>
@@ -365,70 +369,3 @@ export default function AdminTheaterShowtimeManagement() {
         </section>
     );
 }
-
-// Styles
-const containerStyle: React.CSSProperties = {
-    marginTop: "40px",
-};
-
-const tabGroupStyle: React.CSSProperties = {
-    display: "flex",
-    gap: "10px",
-    marginBottom: "30px",
-};
-
-const tabStyle: React.CSSProperties = {
-    background: "rgba(255, 255, 255, 0.05)",
-    color: "rgba(255, 255, 255, 0.6)",
-    border: "1px solid rgba(255, 255, 255, 0.1)",
-    padding: "12px 24px",
-    borderRadius: "12px",
-    cursor: "pointer",
-    fontWeight: 600,
-};
-
-const activeTabStyle: React.CSSProperties = {
-    ...tabStyle,
-    background: "#e50914",
-    color: "white",
-    border: "none",
-};
-
-const paneStyle: React.CSSProperties = {
-    background: "rgba(255, 255, 255, 0.03)",
-    borderRadius: "24px",
-    padding: "30px",
-    border: "1px solid rgba(255, 255, 255, 0.05)",
-};
-
-const paneHeaderStyle: React.CSSProperties = {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: "20px",
-};
-
-const tableStyle: React.CSSProperties = { width: "100%", borderCollapse: "collapse" };
-const thStyle: React.CSSProperties = { padding: "15px", textAlign: "left", borderBottom: "1px solid rgba(255, 255, 255, 0.1)", color: "rgba(255, 255, 255, 0.5)", fontSize: "14px" };
-const tdStyle: React.CSSProperties = { padding: "15px", borderBottom: "1px solid rgba(255, 255, 255, 0.05)" };
-const trStyle: React.CSSProperties = { transition: "background 0.2s" };
-
-const btnGroupStyle: React.CSSProperties = { display: "flex", gap: "8px" };
-const smallBtnStyle: React.CSSProperties = { background: "rgba(255, 255, 255, 0.05)", color: "white", border: "1px solid rgba(255, 255, 255, 0.1)", padding: "6px 12px", borderRadius: "8px", cursor: "pointer", fontSize: "13px" };
-const deleteBtnSmallStyle: React.CSSProperties = { ...smallBtnStyle, background: "rgba(229, 9, 20, 0.1)", color: "#e50914", border: "1px solid rgba(229, 9, 20, 0.2)" };
-const addBtnStyle: React.CSSProperties = { background: "#22c55e", color: "white", border: "none", padding: "10px 20px", borderRadius: "10px", fontWeight: 700, cursor: "pointer" };
-
-const modalOverlayStyle: React.CSSProperties = { position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.8)", backdropFilter: "blur(8px)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000 };
-const modalContentStyle: React.CSSProperties = { background: "#0a0a0a", border: "1px solid rgba(255, 255, 255, 0.1)", borderRadius: "24px", padding: "40px", width: "100%", maxWidth: "500px" };
-const formStyle: React.CSSProperties = { display: "flex", flexDirection: "column", gap: "20px" };
-const inputStyle: React.CSSProperties = { background: "rgba(255, 255, 255, 0.05)", border: "1px solid rgba(255, 255, 255, 0.1)", borderRadius: "10px", padding: "12px", color: "white", fontSize: "15px" };
-const modalActionsStyle: React.CSSProperties = { display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "10px" };
-const cancelBtnStyle: React.CSSProperties = { background: "transparent", color: "rgba(255, 255, 255, 0.5)", border: "none", padding: "12px 20px", cursor: "pointer", fontWeight: 600 };
-const submitBtnStyle: React.CSSProperties = { background: "#e50914", color: "white", border: "none", padding: "12px 24px", borderRadius: "10px", fontWeight: 700, cursor: "pointer" };
-
-const listItemStyle: React.CSSProperties = { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px", background: "rgba(255, 255, 255, 0.02)", borderRadius: "10px", marginBottom: "8px" };
-const inlineFormStyle: React.CSSProperties = { display: "flex", gap: "10px" };
-
-const errorStyle: React.CSSProperties = { background: "rgba(229, 9, 20, 0.1)", color: "#e50914", padding: "12px 20px", borderRadius: "12px", marginBottom: "20px" };
-const successStyle: React.CSSProperties = { background: "rgba(34, 197, 94, 0.1)", color: "#22c55e", padding: "12px 20px", borderRadius: "12px", marginBottom: "20px" };
-const msgStyle: React.CSSProperties = { textAlign: "center", padding: "40px", color: "rgba(255,255,255,0.4)" };

@@ -54,7 +54,7 @@ export default function LoginForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} style={{ display: "grid", gap: 12 }}>
+    <form onSubmit={handleSubmit(onSubmit)} className="grid gap-6">
       <Field
         label="Email"
         placeholder="you@booko.com"
@@ -67,19 +67,19 @@ export default function LoginForm() {
         label="Password"
         placeholder="••••••••"
         type="password"
-        error={errors.password?.message}
+        error={errors.email?.message ? undefined : errors.password?.message}
         {...register("password")}
       />
 
       {serverError ? <ErrorBox message={serverError} /> : null}
 
-      <button type="submit" disabled={isSubmitting} style={primaryBtn}>
-        {isSubmitting ? "Logging in..." : "Login"}
+      <button type="submit" disabled={isSubmitting} className="bg-primary hover:bg-primary/90 text-white py-4 px-6 rounded-2xl font-black text-sm shadow-xl shadow-primary/20 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed mt-2">
+        {isSubmitting ? "Authenticating..." : "Login"}
       </button>
 
-      <p style={{ margin: 0, fontSize: 13, color: "rgba(255,255,255,0.75)" }}>
+      <p className="text-sm text-center text-white/50 m-0">
         New to Booko?{" "}
-        <Link href="/register" style={linkStyle}>
+        <Link href="/register" className="text-white font-black hover:text-primary transition-colors underline decoration-primary/30 underline-offset-4">
           Create account
         </Link>
       </p>
@@ -87,35 +87,9 @@ export default function LoginForm() {
   );
 }
 
-/** Small UI components inside same file (still separated logically) */
-const primaryBtn: React.CSSProperties = {
-  padding: "11px 14px",
-  borderRadius: 12,
-  border: "1px solid rgba(255,255,255,0.12)",
-  background: "rgba(229,9,20,0.95)",
-  color: "white",
-  fontWeight: 800,
-  cursor: "pointer",
-};
-
-const linkStyle: React.CSSProperties = {
-  fontWeight: 800,
-  color: "white",
-  textDecoration: "underline",
-};
-
 function ErrorBox({ message }: { message: string }) {
   return (
-    <div
-      style={{
-        padding: 10,
-        borderRadius: 12,
-        background: "rgba(255,77,79,0.12)",
-        border: "1px solid rgba(255,77,79,0.35)",
-        color: "rgba(255,255,255,0.92)",
-        fontSize: 13,
-      }}
-    >
+    <div className="bg-primary/10 border border-primary/30 text-white/90 p-4 rounded-2xl text-xs font-medium animate-in shake-in duration-300">
       {message}
     </div>
   );
@@ -128,24 +102,17 @@ type FieldProps = React.InputHTMLAttributes<HTMLInputElement> & {
 
 function Field({ label, error, ...props }: FieldProps) {
   return (
-    <div style={{ display: "grid", gap: 6 }}>
-      <label style={{ fontSize: 13, fontWeight: 700 }}>{label}</label>
+    <div className="grid gap-2">
+      <label className="text-[10px] uppercase font-black text-white/40 tracking-[0.2em] ml-1">{label}</label>
       <input
         {...props}
-        style={{
-          padding: "11px 12px",
-          borderRadius: 12,
-          border: `1px solid ${error ? "rgba(255,77,79,0.7)" : "rgba(255,255,255,0.14)"}`,
-          background: "rgba(255,255,255,0.06)",
-          color: "white",
-          outline: "none",
-        }}
+        className={`bg-white/5 border ${error ? "border-primary/50" : "border-white/10"} rounded-2xl p-4 text-white text-sm focus:border-primary/50 focus:outline-none transition-all placeholder:text-white/20`}
       />
-      {error ? (
-        <span style={{ color: "rgba(255,120,120,1)", fontSize: 12 }}>
+      {error && (
+        <span className="text-primary text-[10px] font-bold uppercase tracking-wider ml-1 mt-1">
           {error}
         </span>
-      ) : null}
+      )}
     </div>
   );
 }

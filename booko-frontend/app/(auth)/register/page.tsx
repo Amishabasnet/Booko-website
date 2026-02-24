@@ -2,15 +2,15 @@ import RegisterForm from "../components/RegisterForm";
 
 export default function RegisterPage() {
   return (
-    <>
-      <h1 style={{ margin: 0, fontSize: 22, fontWeight: 900 }}>
-        Create your Booko account 🍿
+    <div className="animate-in slide-in-from-bottom-4 duration-500">
+      <h1 className="text-3xl md:text-4xl font-black mb-2 tracking-tight">
+        Join the club <span className="text-primary">.</span>
       </h1>
-      <p style={{ margin: "8px 0 16px", color: "rgba(255,255,255,0.75)" }}>
-        Join Booko to reserve seats, save favorites, and checkout faster.
+      <p className="text-sm text-white/50 mb-10 leading-relaxed max-w-sm">
+        Join Booko to reserve seats, save favorites, and experience cinema like never before.
       </p>
 
       <RegisterForm />
-    </>
+    </div>
   );
 }

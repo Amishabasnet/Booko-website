@@ -74,48 +74,50 @@ export default function MovieList({ filters }: MovieListProps) {
 
     if (movies.length === 0) {
         return (
-            <div style={messageStyle}>
-                <div style={{ fontSize: "48px", marginBottom: "20px" }}>🔍</div>
-                <h3>No movies found</h3>
-                <p style={{ color: "rgba(255,255,255,0.4)" }}>Try adjusting your search or filters</p>
+            <div className="flex flex-col items-center justify-center p-20 text-center text-white/40">
+                <div className="text-6xl mb-6 grayscale opacity-50">🔍</div>
+                <h3 className="text-2xl font-bold text-white mb-2">No movies found</h3>
+                <p className="text-sm">Try adjusting your search or filters</p>
             </div>
         );
     }
 
     return (
-        <div style={gridStyle}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 py-5">
             {movies.map((movie) => (
-                <div key={movie._id} style={cardStyle}>
-                    <Link href={`/movies/${movie._id}`} style={linkWrapperStyle}>
-                        <div style={imageContainerStyle}>
+                <div key={movie._id} className="bg-white/5 rounded-2xl overflow-hidden border border-white/10 hover:border-white/20 transition-all cursor-pointer group flex flex-col h-full">
+                    <Link href={`/movies/${movie._id}`} className="no-underline text-inherit flex flex-col h-full">
+                        <div className="relative aspect-[2/3] overflow-hidden bg-[#1a1a1a]">
                             {movie.posterImage ? (
                                 // eslint-disable-next-line @next/next/no-img-element
-                                <img src={movie.posterImage} alt={movie.title} style={imageStyle} />
+                                <img src={movie.posterImage} alt={movie.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                             ) : (
-                                <div style={placeholderStyle}>No Poster Available</div>
+                                <div className="w-full h-full flex items-center justify-center text-white/30 text-sm font-semibold">No Poster Available</div>
                             )}
-                            <div style={genreContainerStyle}>
+                            <div className="absolute bottom-3 left-3 flex flex-wrap gap-1.5">
                                 {movie.genre.map((g) => (
-                                    <span key={g} style={genreBadgeStyle}>{g}</span>
+                                    <span key={g} className="bg-black/60 backdrop-blur-md text-white py-1 px-2.5 rounded-lg text-[10px] font-bold uppercase tracking-wider border border-white/10">
+                                        {g}
+                                    </span>
                                 ))}
                             </div>
                         </div>
 
-                        <div style={contentStyle}>
-                            <h3 style={movieTitleStyle}>{movie.title}</h3>
-                            <p style={durationStyle}>⏱️ {movie.duration} mins</p>
+                        <div className="p-5 flex-1 flex flex-col">
+                            <h3 className="text-xl font-extrabold mb-1.5 text-white">{movie.title}</h3>
+                            <p className="text-xs text-white/50 mb-5">⏱️ {movie.duration} mins</p>
 
-                            <div style={showtimesSectionStyle}>
-                                <p style={sectionLabelStyle}>Today's Showtimes</p>
-                                <div style={showtimeGridStyle}>
+                            <div className="mt-auto">
+                                <p className="text-[10px] font-bold text-white/30 uppercase mb-2.5 tracking-wider">Today's Showtimes</p>
+                                <div className="flex flex-wrap gap-2">
                                     {movie.showtimes && movie.showtimes.length > 0 ? (
                                         movie.showtimes.slice(0, 4).map((st) => (
-                                            <span key={st._id} style={showtimeBadgeStyle}>
+                                            <span key={st._id} className="bg-white/10 text-primary py-1.5 px-3 rounded-xl text-xs font-extrabold border border-primary/20">
                                                 {st.showTime}
                                             </span>
                                         ))
                                     ) : (
-                                        <span style={noShowtimeStyle}>No shows today</span>
+                                        <span className="text-xs text-white/30 italic">No shows today</span>
                                     )}
                                 </div>
                             </div>
@@ -126,147 +128,3 @@ export default function MovieList({ filters }: MovieListProps) {
         </div>
     );
 }
-
-const gridStyle: React.CSSProperties = {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
-    gap: "32px",
-    padding: "20px 0",
-};
-
-const cardStyle: React.CSSProperties = {
-    background: "rgba(255, 255, 255, 0.03)",
-    borderRadius: "20px",
-    overflow: "hidden",
-    border: "1px solid rgba(255, 255, 255, 0.08)",
-    transition: "transform 0.3s ease, box-shadow 0.3s ease",
-    cursor: "pointer",
-};
-
-const linkWrapperStyle: React.CSSProperties = {
-    textDecoration: "none",
-    color: "inherit",
-    height: "100%",
-    display: "flex",
-    flexDirection: "column",
-};
-
-const imageContainerStyle: React.CSSProperties = {
-    position: "relative",
-    aspectRatio: "2/3",
-    overflow: "hidden",
-    background: "#1a1a1a",
-};
-
-const imageStyle: React.CSSProperties = {
-    width: "100%",
-    height: "100%",
-    objectFit: "cover",
-    transition: "scale 0.5s ease",
-};
-
-const placeholderStyle: React.CSSProperties = {
-    width: "100%",
-    height: "100%",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    color: "rgba(255, 255, 255, 0.3)",
-    fontSize: "14px",
-    fontWeight: 600,
-};
-
-const genreContainerStyle: React.CSSProperties = {
-    position: "absolute",
-    bottom: "12px",
-    left: "12px",
-    display: "flex",
-    flexWrap: "wrap",
-    gap: "6px",
-};
-
-const genreBadgeStyle: React.CSSProperties = {
-    background: "rgba(0, 0, 0, 0.6)",
-    backdropFilter: "blur(8px)",
-    color: "#fff",
-    padding: "4px 10px",
-    borderRadius: "8px",
-    fontSize: "11px",
-    fontWeight: 700,
-    textTransform: "uppercase",
-    letterSpacing: "0.03em",
-    border: "1px solid rgba(255, 255, 255, 0.1)",
-};
-
-const contentStyle: React.CSSProperties = {
-    padding: "20px",
-    flex: 1,
-    display: "flex",
-    flexDirection: "column",
-};
-
-const movieTitleStyle: React.CSSProperties = {
-    fontSize: "20px",
-    fontWeight: 800,
-    margin: "0 0 6px 0",
-    color: "#fff",
-};
-
-const durationStyle: React.CSSProperties = {
-    fontSize: "13px",
-    color: "rgba(255, 255, 255, 0.5)",
-    margin: "0 0 20px 0",
-};
-
-const showtimesSectionStyle: React.CSSProperties = {
-    marginTop: "auto",
-};
-
-const sectionLabelStyle: React.CSSProperties = {
-    fontSize: "12px",
-    fontWeight: 700,
-    color: "rgba(255, 255, 255, 0.3)",
-    textTransform: "uppercase",
-    marginBottom: "10px",
-    letterSpacing: "0.05em",
-};
-
-const showtimeGridStyle: React.CSSProperties = {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: "8px",
-};
-
-const showtimeBadgeStyle: React.CSSProperties = {
-    background: "rgba(255, 255, 255, 0.05)",
-    color: "#e50914",
-    padding: "6px 12px",
-    borderRadius: "10px",
-    fontSize: "13px",
-    fontWeight: 800,
-    border: "1px solid rgba(229, 9, 20, 0.2)",
-};
-
-const noShowtimeStyle: React.CSSProperties = {
-    fontSize: "13px",
-    color: "rgba(255, 255, 255, 0.3)",
-    fontStyle: "italic",
-};
-
-const messageStyle: React.CSSProperties = {
-    textAlign: "center",
-    padding: "60px",
-    fontSize: "18px",
-    color: "rgba(255, 255, 255, 0.6)",
-    fontWeight: 500,
-};
-
-const errorStyle: React.CSSProperties = {
-    background: "rgba(255, 77, 79, 0.1)",
-    color: "#ff4d4f",
-    padding: "20px",
-    borderRadius: "12px",
-    textAlign: "center",
-    margin: "20px 0",
-    border: "1px solid rgba(255, 77, 79, 0.2)",
-};

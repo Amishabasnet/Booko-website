@@ -20,12 +20,23 @@ export const authService = {
       email: data.email,
       passwordHash,
       name: data.name || "",
+      phoneNumber: data.phoneNumber || "",
+      dob: data.dob ? new Date(data.dob) : undefined,
+      gender: data.gender || "prefer_not_to_say",
       role: data.role || "user",
     });
 
 
     return {
-      user: { id: String(user._id), email: user.email, name: user.name, role: user.role },
+      user: {
+        id: String(user._id),
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        phoneNumber: user.phoneNumber,
+        dob: user.dob,
+        gender: user.gender
+      },
     };
   },
 
@@ -38,6 +49,9 @@ export const authService = {
       email: user.email,
       name: user.name,
       role: user.role,
+      phoneNumber: user.phoneNumber,
+      dob: user.dob,
+      gender: user.gender,
       imageUrl: user.imageUrl,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,

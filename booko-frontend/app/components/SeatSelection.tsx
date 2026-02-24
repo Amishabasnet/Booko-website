@@ -64,61 +64,63 @@ export default function SeatSelection({ showtimeId, onConfirm }: { showtimeId: s
 
     if (loading) return <Loader message="Preparing your theater seating view..." />;
     if (error) return <ErrorMessage message={error} onRetry={fetchShowtimeData} />;
-    if (!showtime) return <div style={messageStyle}>Showtime not found.</div>;
+    if (!showtime) return <div className="text-center py-20 text-white/50 text-lg font-medium">Showtime not found.</div>;
 
     const totalPrice = selectedSeats.length * showtime.ticketPrice;
 
     return (
-        <div style={containerStyle}>
-            <div style={screenContainerStyle}>
-                <div style={screenVisualStyle}>SCREEN</div>
+        <div className="p-5 md:p-10 bg-white/5 rounded-3xl border border-white/10 shadow-2xl">
+            <div className="flex justify-center mb-10 md:mb-16">
+                <div className="w-[90%] md:w-[80%] h-2.5 bg-white/20 rounded-[50%_50%_0_0] flex items-center justify-center text-[8px] md:text-[10px] font-black text-white/40 shadow-[0_-20px_40px_rgba(255,255,255,0.05)] uppercase">
+                    Screen
+                </div>
             </div>
 
-            <div style={seatGridStyle}>
-                {showtime.screenId.seatLayout.map((row, rowIndex) => (
-                    <div key={rowIndex} style={rowStyle}>
-                        {row.map((seat) => {
-                            const seatId = `${seat.row}-${seat.col}`;
-                            const isBooked = showtime.bookedSeats.includes(seatId);
-                            const isSelected = selectedSeats.includes(seatId);
+            <div className="overflow-x-auto pb-5 md:pb-0 mb-10">
+                <div className="grid gap-2.5 justify-center min-w-max md:min-w-0">
+                    {showtime.screenId.seatLayout.map((row, rowIndex) => (
+                        <div key={rowIndex} className="flex gap-2.5">
+                            {row.map((seat) => {
+                                const seatId = `${seat.row}-${seat.col}`;
+                                const isBooked = showtime.bookedSeats.includes(seatId);
+                                const isSelected = selectedSeats.includes(seatId);
 
-                            return (
-                                <button
-                                    key={seatId}
-                                    onClick={() => toggleSeat(seatId)}
-                                    disabled={isBooked}
-                                    style={{
-                                        ...seatBaseStyle,
-                                        background: isBooked ? "#333" : isSelected ? "#e50914" : "rgba(255,255,255,0.1)",
-                                        cursor: isBooked ? "not-allowed" : "pointer",
-                                        borderColor: isSelected ? "#e50914" : "transparent",
-                                    }}
-                                    title={`${seat.row}${seat.col} (${seat.type})`}
-                                />
-                            );
-                        })}
-                    </div>
-                ))}
+                                return (
+                                    <button
+                                        key={seatId}
+                                        onClick={() => toggleSeat(seatId)}
+                                        disabled={isBooked}
+                                        className={`w-7 h-7 md:w-8 md:h-8 rounded-lg border-2 border-transparent transition-all duration-200 cursor-pointer disabled:bg-[#333] disabled:cursor-not-allowed ${isSelected ? "bg-primary border-primary scale-110" : "bg-white/10 hover:bg-white/20"}`}
+                                        title={`${seat.row}${seat.col} (${seat.type})`}
+                                    />
+                                );
+                            })}
+                        </div>
+                    ))}
+                </div>
             </div>
 
-            <div style={legendStyle}>
-                <div style={legendItem}><div style={{ ...legendBox, background: "rgba(255,255,255,0.1)" }}></div> Available</div>
-                <div style={legendItem}><div style={{ ...legendBox, background: "#e50914" }}></div> Selected</div>
-                <div style={legendItem}><div style={{ ...legendBox, background: "#333" }}></div> Booked</div>
+            <div className="flex flex-wrap justify-center gap-6 md:gap-8 mb-10 text-xs md:text-sm text-white/50">
+                <div className="flex items-center gap-2">
+                    <div className="w-5 h-5 rounded bg-white/10"></div> Available
+                </div>
+                <div className="flex items-center gap-2">
+                    <div className="w-5 h-5 rounded bg-primary"></div> Selected
+                </div>
+                <div className="flex items-center gap-2">
+                    <div className="w-5 h-5 rounded bg-[#333]"></div> Booked
+                </div>
             </div>
 
-            <div style={summaryStyle}>
-                <div style={summaryInfoStyle}>
-                    <p style={selectedCountStyle}>{selectedSeats.length} seats selected</p>
-                    <h3 style={totalPriceStyle}>Total: ${totalPrice.toFixed(2)}</h3>
+            <div className="flex flex-col sm:flex-row justify-between items-center border-t border-white/10 pt-8 gap-6 sm:gap-0">
+                <div className="text-center sm:text-left">
+                    <p className="text-sm text-white/50 m-0 mb-1.5">{selectedSeats.length} seats selected</p>
+                    <h3 className="text-2xl md:text-3xl font-black m-0 tracking-tight">Total: ${totalPrice.toFixed(2)}</h3>
                 </div>
                 <button
                     onClick={() => onConfirm(selectedSeats, totalPrice)}
                     disabled={selectedSeats.length === 0}
-                    style={{
-                        ...bookingBtnStyle,
-                        opacity: selectedSeats.length === 0 ? 0.5 : 1,
-                    }}
+                    className={`bg-primary shadow-xl shadow-primary/30 text-white py-4 px-10 rounded-2xl font-extrabold text-base transition-all active:scale-95 disabled:opacity-50 disabled:shadow-none disabled:active:scale-100 uppercase tracking-wide w-full sm:w-auto`}
                 >
                     Review & Pay
                 </button>
@@ -126,120 +128,3 @@ export default function SeatSelection({ showtimeId, onConfirm }: { showtimeId: s
         </div>
     );
 }
-
-const containerStyle: React.CSSProperties = {
-    padding: "40px",
-    background: "rgba(255, 255, 255, 0.03)",
-    borderRadius: "24px",
-    border: "1px solid rgba(255, 255, 255, 0.08)",
-};
-
-const screenContainerStyle: React.CSSProperties = {
-    display: "flex",
-    justifyContent: "center",
-    marginBottom: "60px",
-};
-
-const screenVisualStyle: React.CSSProperties = {
-    width: "80%",
-    height: "10px",
-    background: "rgba(255, 255, 255, 0.2)",
-    borderRadius: "50% 50% 0 0",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontSize: "10px",
-    fontWeight: 900,
-    color: "rgba(255, 255, 255, 0.4)",
-    boxShadow: "0 -20px 40px rgba(255, 255, 255, 0.05)",
-};
-
-const seatGridStyle: React.CSSProperties = {
-    display: "grid",
-    gap: "10px",
-    justifyContent: "center",
-    marginBottom: "40px",
-};
-
-const rowStyle: React.CSSProperties = {
-    display: "flex",
-    gap: "10px",
-};
-
-const seatBaseStyle: React.CSSProperties = {
-    width: "30px",
-    height: "30px",
-    borderRadius: "6px",
-    border: "2px solid transparent",
-    transition: "all 0.2s",
-};
-
-const legendStyle: React.CSSProperties = {
-    display: "flex",
-    justifyContent: "center",
-    gap: "30px",
-    marginBottom: "40px",
-    fontSize: "13px",
-    color: "rgba(255, 255, 255, 0.5)",
-};
-
-const legendItem: React.CSSProperties = {
-    display: "flex",
-    alignItems: "center",
-    gap: "8px",
-};
-
-const legendBox: React.CSSProperties = {
-    width: "20px",
-    height: "20px",
-    borderRadius: "4px",
-};
-
-const summaryStyle: React.CSSProperties = {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    borderTop: "1px solid rgba(255, 255, 255, 0.1)",
-    paddingTop: "30px",
-};
-
-const summaryInfoStyle: React.CSSProperties = {
-    display: "grid",
-    gap: "4px",
-};
-
-const selectedCountStyle: React.CSSProperties = {
-    fontSize: "14px",
-    color: "rgba(255, 255, 255, 0.5)",
-    margin: 0,
-};
-
-const totalPriceStyle: React.CSSProperties = {
-    fontSize: "24px",
-    fontWeight: 900,
-    margin: 0,
-};
-
-const bookingBtnStyle: React.CSSProperties = {
-    background: "#e50914",
-    color: "white",
-    padding: "16px 40px",
-    borderRadius: "16px",
-    border: "none",
-    fontSize: "16px",
-    fontWeight: 800,
-    cursor: "pointer",
-    boxShadow: "0 10px 30px rgba(229, 9, 20, 0.3)",
-};
-
-const messageStyle: React.CSSProperties = {
-    textAlign: "center",
-    padding: "60px",
-    color: "rgba(255, 255, 255, 0.5)",
-};
-
-const errorStyle: React.CSSProperties = {
-    color: "#ff4d4f",
-    padding: "20px",
-    textAlign: "center",
-};
