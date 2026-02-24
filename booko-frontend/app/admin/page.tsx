@@ -4,6 +4,7 @@ import ProtectedRoute from "@/app/components/ProtectedRoute";
 import Link from "next/link";
 import { useAuth } from "@/app/context/AuthContext";
 import AdminMovieManagement from "@/app/components/AdminMovieManagement";
+import AdminTheaterShowtimeManagement from "@/app/components/AdminTheaterShowtimeManagement";
 
 export default function AdminPage() {
     const { user, logout } = useAuth();
@@ -36,7 +37,10 @@ export default function AdminPage() {
                     </div>
                 </header>
 
-                <AdminMovieManagement />
+                <div style={{ display: "grid", gap: "60px" }}>
+                    <AdminMovieManagement />
+                    <AdminTheaterShowtimeManagement />
+                </div>
             </main>
         </ProtectedRoute>
     );
