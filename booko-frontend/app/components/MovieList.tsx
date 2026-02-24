@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import axios from "axios";
 import { getMovies, getMovieShowtimes } from "@/app/services/movie.service";
+import Loader from "./ui/Loader";
+import ErrorMessage from "./ui/ErrorMessage";
 
 interface Movie {
     _id: string;
@@ -22,47 +24,63 @@ interface Showtime {
     ticketPrice: number;
 }
 
-export default function MovieList() {
+interface MovieListProps {
+    filters?: any;
+}
+
+export default function MovieList({ filters }: MovieListProps) {
     const [movies, setMovies] = useState<Movie[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const moviesRes = await getMovies();
-                const moviesData: Movie[] = moviesRes.data.movies;
+    const fetchData = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const moviesRes = await getMovies(filters);
+            const moviesData: Movie[] = moviesRes.data.movies;
 
-                // Fetch showtimes for each movie
-                const moviesWithShowtimes = await Promise.all(
-                    moviesData.map(async (movie) => {
-                        try {
-                            const showtimesRes = await getMovieShowtimes(movie._id);
-                            return { ...movie, showtimes: showtimesRes.data.showtimes };
-                        } catch (err) {
-                            console.error(`Failed to fetch showtimes for movie ${movie._id}`, err);
-                            return { ...movie, showtimes: [] };
-                        }
-                    })
-                );
+            // Fetch showtimes for each movie
+            const moviesWithShowtimes = await Promise.all(
+                moviesData.map(async (movie) => {
+                    try {
+                        const showtimesRes = await getMovieShowtimes(movie._id);
+                        return { ...movie, showtimes: showtimesRes.data.showtimes };
+                    } catch (err) {
+                        console.error(`Failed to fetch showtimes for movie ${movie._id}`, err);
+                        return { ...movie, showtimes: [] };
+                    }
+                })
+            );
 
-                setMovies(moviesWithShowtimes);
-            } catch (err: unknown) {
-                let message = "Failed to load movies.";
-                if (axios.isAxiosError(err)) {
-                    message = err.response?.data?.message || message;
-                }
-                setError(message);
-            } finally {
-                setLoading(false);
+            setMovies(moviesWithShowtimes);
+        } catch (err: unknown) {
+            let message = "Failed to load movies.";
+            if (axios.isAxiosError(err)) {
+                message = err.response?.data?.message || message;
             }
-        };
+            setError(message);
+        } finally {
+            setLoading(false);
+        }
+    };
 
+    useEffect(() => {
         fetchData();
-    }, []);
+    }, [filters]);
 
-    if (loading) return <div style={messageStyle}>Fetching latest blockbusters... 🍿</div>;
-    if (error) return <div style={errorStyle}>{error}</div>;
+    if (loading) return <Loader message="Searching for blockbusters..." />;
+    if (error) return <ErrorMessage message={error} onRetry={fetchData} />;
+
+    if (movies.length === 0) {
+        return (
+            <div style={messageStyle}>
+                <div style={{ fontSize: "48px", marginBottom: "20px" }}>🔍</div>
+                <h3>No movies found</h3>
+                <p style={{ color: "rgba(255,255,255,0.4)" }}>Try adjusting your search or filters</p>
+            </div>
+        );
+    }
 
     return (
         <div style={gridStyle}>

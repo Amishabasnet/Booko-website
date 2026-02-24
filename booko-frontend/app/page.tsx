@@ -1,7 +1,13 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import MovieList from "./components/MovieList";
+import SearchBar from "./components/SearchBar";
 
 export default function HomePage() {
+  const [filters, setFilters] = useState({});
+
   return (
     <main style={mainStyle}>
       <header style={headerStyle}>
@@ -21,8 +27,9 @@ export default function HomePage() {
       </header>
 
       <section style={sectionStyle}>
+        <SearchBar onSearch={setFilters} />
         <h3 style={sectionTitleStyle}>Now Showing</h3>
-        <MovieList />
+        <MovieList filters={filters} />
       </section>
     </main>
   );

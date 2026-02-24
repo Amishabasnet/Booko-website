@@ -1,10 +1,19 @@
-import axios from "axios";
+import apiClient from "@/app/utils/apiClient";
 
-const API_URL = "http://localhost:5000/api";
-
-export const getMovies = () => axios.get(`${API_URL}/movies`);
+export const getMovies = (params: any = {}) => {
+    return apiClient.get("/movies", { params });
+};
 
 export const getMovieShowtimes = (movieId: string) =>
-    axios.get(`${API_URL}/showtimes`, { params: { movieId } });
+    apiClient.get("/showtimes", { params: { movieId } });
 
-export const getMovieById = (id: string) => axios.get(`${API_URL}/movies/${id}`);
+export const getMovieById = (id: string) => apiClient.get(`/movies/${id}`);
+
+export const createMovie = (data: any) =>
+    apiClient.post("/movies", data);
+
+export const updateMovie = (id: string, data: any) =>
+    apiClient.put(`/movies/${id}`, data);
+
+export const deleteMovie = (id: string) =>
+    apiClient.delete(`/movies/${id}`);

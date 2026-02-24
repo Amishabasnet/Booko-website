@@ -3,7 +3,8 @@ import { movieService } from "../services/movie.service";
 
 export const movieController = {
     async getAll(req: Request, res: Response) {
-        const movies = await movieService.getAllMovies();
+        const { search, genre, date } = req.query;
+        const movies = await movieService.getAllMovies({ search, genre, date });
         return res.json({ success: true, movies });
     },
 
