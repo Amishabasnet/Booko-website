@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getShowtimeDetails, createBooking } from "@/app/services/booking.service";
+import { createBooking } from "@/app/services/booking.service";
+import { getShowtimeById } from "@/app/services/showtime.service";
+import Loader from "./ui/Loader";
+import ErrorMessage from "./ui/ErrorMessage";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 
@@ -28,22 +31,25 @@ export default function SeatSelection({ showtimeId, onConfirm }: { showtimeId: s
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const res = await getShowtimeDetails(showtimeId);
-                setShowtime(res.data.showtime);
-            } catch (err: unknown) {
-                let message = "Failed to load seating layout.";
-                if (axios.isAxiosError(err)) {
-                    message = err.response?.data?.message || message;
-                }
-                setError(message);
-            } finally {
-                setLoading(false);
+    const fetchShowtimeData = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const res = await getShowtimeById(showtimeId);
+            setShowtime(res.data.showtime);
+        } catch (err: unknown) {
+            let message = "Failed to load seating layout.";
+            if (axios.isAxiosError(err)) {
+                message = err.response?.data?.message || message;
             }
-        };
-        fetchData();
+            setError(message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchShowtimeData();
     }, [showtimeId]);
 
     const toggleSeat = (seatId: string) => {
@@ -56,11 +62,11 @@ export default function SeatSelection({ showtimeId, onConfirm }: { showtimeId: s
         );
     };
 
-    const totalPrice = showtime ? selectedSeats.length * showtime.ticketPrice : 0;
-
-    if (loading) return <div style={messageStyle}>Loading seat map... 🛋️</div>;
-    if (error) return <div style={errorStyle}>{error}</div>;
+    if (loading) return <Loader message="Preparing your theater seating view..." />;
+    if (error) return <ErrorMessage message={error} onRetry={fetchShowtimeData} />;
     if (!showtime) return <div style={messageStyle}>Showtime not found.</div>;
+
+    const totalPrice = selectedSeats.length * showtime.ticketPrice;
 
     return (
         <div style={containerStyle}>

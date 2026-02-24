@@ -1,23 +1,22 @@
-import axios from "axios";
+import apiClient from "@/app/utils/apiClient";
 
-const API_URL = "http://localhost:5000/api";
+export const createBooking = (data: {
+    showtimeId: string;
+    selectedSeats: string[];
+    totalAmount: number;
+}) => apiClient.post("/bookings", data);
 
-const getAuthHeader = () => {
-    const token = localStorage.getItem("booko_token");
-    return token ? { Authorization: `Bearer ${token}` } : {};
-};
+export const getUserBookings = () =>
+    apiClient.get("/bookings/user");
 
-export const getShowtimeDetails = (id: string) =>
-    axios.get(`${API_URL}/showtimes/${id}`);
+export const getBookingById = (id: string) =>
+    apiClient.get(`/bookings/${id}`);
 
-export const createBooking = (data: { showtimeId: string, selectedSeats: string[] }) =>
-    axios.post(`${API_URL}/bookings`, data, { headers: getAuthHeader() });
-
-export const initiatePayment = (bookingId: string, paymentMethod: string) =>
-    axios.post(`${API_URL}/payments/${bookingId}`, { paymentMethod }, { headers: getAuthHeader() });
+export const updateBookingStatus = (id: string, bookingStatus: string, paymentStatus: string) =>
+    apiClient.put(`/bookings/${id}/status`, { bookingStatus, paymentStatus });
 
 export const updatePaymentStatus = (bookingId: string, status: string) =>
-    axios.put(`${API_URL}/bookings/${bookingId}/status`, { paymentStatus: status }, { headers: getAuthHeader() });
+    apiClient.put(`/bookings/${bookingId}/status`, { paymentStatus: status });
 
 export const getAllBookings = () =>
-    axios.get(`${API_URL}/bookings`, { headers: getAuthHeader() });
+    apiClient.get("/bookings");

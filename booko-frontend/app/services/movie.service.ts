@@ -1,27 +1,19 @@
-import axios from "axios";
-
-const API_URL = "http://localhost:5000/api";
-
-const getAuthHeader = () => {
-    const token = localStorage.getItem("booko_token");
-    return token ? { Authorization: `Bearer ${token}` } : {};
-};
+import apiClient from "@/app/utils/apiClient";
 
 export const getMovies = (params: any = {}) => {
-    const query = new URLSearchParams(params).toString();
-    return axios.get(`${API_URL}/movies${query ? `?${query}` : ""}`);
+    return apiClient.get("/movies", { params });
 };
 
 export const getMovieShowtimes = (movieId: string) =>
-    axios.get(`${API_URL}/showtimes`, { params: { movieId } });
+    apiClient.get("/showtimes", { params: { movieId } });
 
-export const getMovieById = (id: string) => axios.get(`${API_URL}/movies/${id}`);
+export const getMovieById = (id: string) => apiClient.get(`/movies/${id}`);
 
 export const createMovie = (data: any) =>
-    axios.post(`${API_URL}/movies`, data, { headers: getAuthHeader() });
+    apiClient.post("/movies", data);
 
 export const updateMovie = (id: string, data: any) =>
-    axios.put(`${API_URL}/movies/${id}`, data, { headers: getAuthHeader() });
+    apiClient.put(`/movies/${id}`, data);
 
 export const deleteMovie = (id: string) =>
-    axios.delete(`${API_URL}/movies/${id}`, { headers: getAuthHeader() });
+    apiClient.delete(`/movies/${id}`);

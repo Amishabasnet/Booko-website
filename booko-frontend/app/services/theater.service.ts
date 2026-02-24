@@ -1,19 +1,12 @@
-import axios from "axios";
+import apiClient from "@/app/utils/apiClient";
 
-const API_URL = "http://localhost:5000/api";
-
-const getAuthHeader = () => {
-    const token = localStorage.getItem("booko_token");
-    return token ? { Authorization: `Bearer ${token}` } : {};
-};
-
-export const getTheaters = () => axios.get(`${API_URL}/theaters`);
+export const getTheaters = () => apiClient.get("/theaters");
 
 export const createTheater = (data: any) =>
-    axios.post(`${API_URL}/theaters`, data, { headers: getAuthHeader() });
+    apiClient.post("/theaters", data);
 
 export const updateTheater = (id: string, data: any) =>
-    axios.put(`${API_URL}/theaters/${id}`, data, { headers: getAuthHeader() });
+    apiClient.put(`/theaters/${id}`, data);
 
 export const deleteTheater = (id: string) =>
-    axios.delete(`${API_URL}/theaters/${id}`, { headers: getAuthHeader() });
+    apiClient.delete(`/theaters/${id}`);

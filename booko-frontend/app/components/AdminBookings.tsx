@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getAllBookings, updatePaymentStatus } from "@/app/services/booking.service";
+import { getAllBookings, updateBookingStatus } from "@/app/services/booking.service";
+import Loader from "./ui/Loader";
+import ErrorMessage from "./ui/ErrorMessage";
 import axios from "axios";
 
 interface Booking {
@@ -49,12 +51,7 @@ export default function AdminBookings() {
             // Reusing updatePaymentStatus but the backend updateBookingStatus accepts both
             // Let's check the service name in backend... it was updateBookingStatus(id, userId, role, data)
             // And route PUT /:id/status 
-            await axios.put(`http://localhost:5000/api/bookings/${id}/status`, {
-                bookingStatus,
-                paymentStatus
-            }, {
-                headers: { Authorization: `Bearer ${localStorage.getItem("booko_token")}` }
-            });
+            await updateBookingStatus(id, bookingStatus, paymentStatus);
 
             setSuccess("Booking updated successfully!");
             fetchBookings();
@@ -76,7 +73,8 @@ export default function AdminBookings() {
         }
     };
 
-    if (loading) return <div style={msgStyle}>Loading bookings...</div>;
+    if (loading) return <Loader message="Accessing booking records..." />;
+    if (error && bookings.length === 0) return <ErrorMessage message={error} onRetry={fetchBookings} />;
 
     return (
         <section style={sectionStyle}>

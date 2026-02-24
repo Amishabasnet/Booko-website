@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { getMovies, createMovie, updateMovie, deleteMovie } from "@/app/services/movie.service";
+import Loader from "./ui/Loader";
+import ErrorMessage from "./ui/ErrorMessage";
 import axios from "axios";
 
 interface Movie {
@@ -128,7 +130,8 @@ export default function AdminMovieManagement() {
         }
     };
 
-    if (loading) return <div style={loadingStyle}>Loading movies...</div>;
+    if (loading) return <Loader message="Managing your cinematic library..." />;
+    if (error) return <ErrorMessage message={error} onRetry={fetchMovies} />;
 
     return (
         <section style={sectionStyle}>

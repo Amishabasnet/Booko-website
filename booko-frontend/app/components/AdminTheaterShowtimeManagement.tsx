@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { getTheaters, createTheater, updateTheater, deleteTheater } from "@/app/services/theater.service";
+import Loader from "./ui/Loader";
+import ErrorMessage from "./ui/ErrorMessage";
 import { getScreensByTheater, createScreen, updateScreen, deleteScreen } from "@/app/services/screen.service";
 import { getShowtimes, createShowtime, updateShowtime, deleteShowtime } from "@/app/services/showtime.service";
 import { getMovies } from "@/app/services/movie.service";
@@ -191,7 +193,8 @@ export default function AdminTheaterShowtimeManagement() {
         }
     };
 
-    if (loading) return <div style={msgStyle}>Loading...</div>;
+    if (loading) return <Loader message="Synchronizing theater and showtime data..." />;
+    if (error) return <ErrorMessage message={error} onRetry={fetchInitialData} />;
 
     return (
         <section style={containerStyle}>
