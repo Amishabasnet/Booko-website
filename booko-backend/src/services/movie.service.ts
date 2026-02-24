@@ -2,8 +2,8 @@ import { movieRepository } from "../repositories/movie.repository";
 import { ApiError } from "../errors/ApiErrors";
 
 export const movieService = {
-    async getAllMovies() {
-        return await movieRepository.findAll();
+    async getAllMovies(filters: any = {}) {
+        return await movieRepository.findAll(filters);
     },
 
     async getMovieById(id: string) {

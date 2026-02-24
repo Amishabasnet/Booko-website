@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useAuth } from "@/app/context/AuthContext";
 import AdminMovieManagement from "@/app/components/AdminMovieManagement";
 import AdminTheaterShowtimeManagement from "@/app/components/AdminTheaterShowtimeManagement";
+import AdminBookings from "@/app/components/AdminBookings";
 
 export default function AdminPage() {
     const { user, logout } = useAuth();
@@ -40,6 +41,7 @@ export default function AdminPage() {
                 <div style={{ display: "grid", gap: "60px" }}>
                     <AdminMovieManagement />
                     <AdminTheaterShowtimeManagement />
+                    <AdminBookings />
                 </div>
             </main>
         </ProtectedRoute>

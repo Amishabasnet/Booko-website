@@ -22,15 +22,20 @@ interface Showtime {
     ticketPrice: number;
 }
 
-export default function MovieList() {
+interface MovieListProps {
+    filters?: any;
+}
+
+export default function MovieList({ filters }: MovieListProps) {
     const [movies, setMovies] = useState<Movie[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchData = async () => {
+            setLoading(true);
             try {
-                const moviesRes = await getMovies();
+                const moviesRes = await getMovies(filters);
                 const moviesData: Movie[] = moviesRes.data.movies;
 
                 // Fetch showtimes for each movie
@@ -59,10 +64,20 @@ export default function MovieList() {
         };
 
         fetchData();
-    }, []);
+    }, [filters]);
 
-    if (loading) return <div style={messageStyle}>Fetching latest blockbusters... 🍿</div>;
+    if (loading) return <div style={messageStyle}>Searching for blockbusters... 🍿</div>;
     if (error) return <div style={errorStyle}>{error}</div>;
+
+    if (movies.length === 0) {
+        return (
+            <div style={messageStyle}>
+                <div style={{ fontSize: "48px", marginBottom: "20px" }}>🔍</div>
+                <h3>No movies found</h3>
+                <p style={{ color: "rgba(255,255,255,0.4)" }}>Try adjusting your search or filters</p>
+            </div>
+        );
+    }
 
     return (
         <div style={gridStyle}>

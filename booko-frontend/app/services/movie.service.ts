@@ -7,7 +7,10 @@ const getAuthHeader = () => {
     return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
-export const getMovies = () => axios.get(`${API_URL}/movies`);
+export const getMovies = (params: any = {}) => {
+    const query = new URLSearchParams(params).toString();
+    return axios.get(`${API_URL}/movies${query ? `?${query}` : ""}`);
+};
 
 export const getMovieShowtimes = (movieId: string) =>
     axios.get(`${API_URL}/showtimes`, { params: { movieId } });

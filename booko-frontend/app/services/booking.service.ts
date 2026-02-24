@@ -18,3 +18,6 @@ export const initiatePayment = (bookingId: string, paymentMethod: string) =>
 
 export const updatePaymentStatus = (bookingId: string, status: string) =>
     axios.put(`${API_URL}/bookings/${bookingId}/status`, { paymentStatus: status }, { headers: getAuthHeader() });
+
+export const getAllBookings = () =>
+    axios.get(`${API_URL}/bookings`, { headers: getAuthHeader() });
