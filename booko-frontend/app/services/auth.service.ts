@@ -5,6 +5,9 @@ const AUTH_URL = "/auth";
 export const registerUser = (data: {
   name: string;
   email: string;
+  phoneNumber: string;
+  dob: string;
+  gender: string;
   password: string;
 }) => apiClient.post(`${AUTH_URL}/register`, data);
 

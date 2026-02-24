@@ -11,6 +11,9 @@ interface UserProfile {
     name: string;
     email: string;
     role: string;
+    phoneNumber?: string;
+    dob?: string;
+    gender?: string;
 }
 
 export default function ProfilePage() {
@@ -75,13 +78,44 @@ export default function ProfilePage() {
                             </div>
                         </div>
 
-                        <div className="space-y-2">
-                            <label className="text-[10px] uppercase font-black text-white/30 tracking-[0.2em] ml-1">Account Role</label>
-                            <div className="flex">
-                                <span className="bg-primary/10 text-primary px-5 py-2 rounded-full text-xs font-black uppercase tracking-widest border border-primary/20">
-                                    {profile.role}
-                                </span>
+                        {profile.phoneNumber && (
+                            <div className="space-y-2">
+                                <label className="text-[10px] uppercase font-black text-white/30 tracking-[0.2em] ml-1">Phone Number</label>
+                                <div className="text-sm font-bold bg-white/5 border border-white/5 rounded-2xl p-4 flex items-center gap-3">
+                                    <span className="opacity-40">📱</span> {profile.phoneNumber}
+                                </div>
                             </div>
+                        )}
+
+                        {profile.dob && (
+                            <div className="space-y-2">
+                                <label className="text-[10px] uppercase font-black text-white/30 tracking-[0.2em] ml-1">Date of Birth</label>
+                                <div className="text-sm font-bold bg-white/5 border border-white/5 rounded-2xl p-4 flex items-center gap-3">
+                                    <span className="opacity-40">🎂</span> {new Date(profile.dob).toLocaleDateString()}
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="grid grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                                <label className="text-[10px] uppercase font-black text-white/30 tracking-[0.2em] ml-1">Account Role</label>
+                                <div className="flex">
+                                    <span className="bg-primary/10 text-primary px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border border-primary/20">
+                                        {profile.role}
+                                    </span>
+                                </div>
+                            </div>
+
+                            {profile.gender && (
+                                <div className="space-y-2">
+                                    <label className="text-[10px] uppercase font-black text-white/30 tracking-[0.2em] ml-1">Gender</label>
+                                    <div className="flex">
+                                        <span className="bg-white/10 text-white px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border border-white/10">
+                                            {profile.gender.replace(/_/g, " ")}
+                                        </span>
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         <div className="pt-6 border-t border-white/5 mt-10">

@@ -21,7 +21,7 @@ export default function RegisterForm() {
   } = useForm<RegisterSchema>({
     resolver: zodResolver(registerSchema),
     mode: "onTouched",
-    defaultValues: { name: "", email: "", password: "", confirmPassword: "" },
+    defaultValues: { name: "", email: "", phoneNumber: "", dob: "", gender: "prefer_not_to_say", password: "", confirmPassword: "" },
   });
 
   const onSubmit = async (values: RegisterSchema) => {
@@ -32,6 +32,9 @@ export default function RegisterForm() {
       await registerUser({
         name: values.name,
         email: values.email,
+        phoneNumber: values.phoneNumber,
+        dob: values.dob,
+        gender: values.gender,
         password: values.password,
       });
 
@@ -67,6 +70,34 @@ export default function RegisterForm() {
           {...register("email")}
         />
       </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <Field
+          label="Phone Number"
+          placeholder="+1 (555) 000-0000"
+          type="tel"
+          error={errors.phoneNumber?.message}
+          {...register("phoneNumber")}
+        />
+
+        <Field
+          label="Date of Birth"
+          type="date"
+          error={errors.dob?.message}
+          {...register("dob")}
+        />
+      </div>
+
+      <SelectField
+        label="Gender"
+        error={errors.gender?.message}
+        {...register("gender")}
+      >
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+        <option value="other">Other</option>
+        <option value="prefer_not_to_say">Prefer not to say</option>
+      </SelectField>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <Field
@@ -130,8 +161,32 @@ function Field({ label, error, ...props }: FieldProps) {
       <label className="text-[10px] uppercase font-black text-white/40 tracking-[0.2em] ml-1">{label}</label>
       <input
         {...props}
-        className={`bg-white/5 border ${error ? "border-primary/50" : "border-white/10"} rounded-2xl p-4 text-white text-sm focus:border-primary/50 focus:outline-none transition-all placeholder:text-white/20`}
+        className={`bg-white/5 border ${error ? "border-primary/50" : "border-white/10"} rounded-2xl p-4 text-white text-sm focus:border-primary/50 focus:outline-none transition-all placeholder:text-white/20 appearance-none`}
       />
+      {error && (
+        <span className="text-primary text-[10px] font-bold uppercase tracking-wider ml-1 mt-1">
+          {error}
+        </span>
+      )}
+    </div>
+  );
+}
+
+type SelectFieldProps = React.SelectHTMLAttributes<HTMLSelectElement> & {
+  label: string;
+  error?: string;
+};
+
+function SelectField({ label, error, children, ...props }: SelectFieldProps) {
+  return (
+    <div className="grid gap-2">
+      <label className="text-[10px] uppercase font-black text-white/40 tracking-[0.2em] ml-1">{label}</label>
+      <select
+        {...props}
+        className={`bg-[rgba(255,255,255,0.05)] border ${error ? "border-primary/50" : "border-white/10"} rounded-2xl p-4 text-white text-sm focus:border-primary/50 focus:outline-none transition-all appearance-none cursor-pointer`}
+      >
+        {children}
+      </select>
       {error && (
         <span className="text-primary text-[10px] font-bold uppercase tracking-wider ml-1 mt-1">
           {error}
