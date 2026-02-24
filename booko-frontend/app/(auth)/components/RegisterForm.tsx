@@ -5,11 +5,14 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import axios from "axios";
+import { registerUser } from "@/app/services/auth.service";
 import { registerSchema, type RegisterSchema } from "../schema";
 
 export default function RegisterForm() {
   const router = useRouter();
   const [serverError, setServerError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const {
     register,
@@ -23,17 +26,27 @@ export default function RegisterForm() {
 
   const onSubmit = async (values: RegisterSchema) => {
     setServerError(null);
+    setSuccessMessage(null);
 
-    // ✅ MERN-ready: replace with backend API call later
-    await new Promise((r) => setTimeout(r, 600));
+    try {
+      await registerUser({
+        name: values.name,
+        email: values.email,
+        password: values.password,
+      });
 
-    if (values.email.toLowerCase().includes("exists")) {
-      setServerError("Email already exists (demo). Try another email.");
-      return;
+      setSuccessMessage("Account created successfully! Redirecting to login...");
+
+      setTimeout(() => {
+        router.push("/login");
+      }, 2000);
+    } catch (error: unknown) {
+      let message = "An error occurred during registration. Please try again.";
+      if (axios.isAxiosError(error)) {
+        message = error.response?.data?.message || message;
+      }
+      setServerError(message);
     }
-
-    localStorage.setItem("booko_token", "demo_token");
-    router.push("/auth/dashboard");
   };
 
   return (
@@ -69,6 +82,7 @@ export default function RegisterForm() {
         {...register("confirmPassword")}
       />
 
+      {successMessage ? <SuccessBox message={successMessage} /> : null}
       {serverError ? <ErrorBox message={serverError} /> : null}
 
       <button type="submit" disabled={isSubmitting} style={primaryBtn}>
@@ -109,6 +123,23 @@ function ErrorBox({ message }: { message: string }) {
         borderRadius: 12,
         background: "rgba(255,77,79,0.12)",
         border: "1px solid rgba(255,77,79,0.35)",
+        color: "rgba(255,255,255,0.92)",
+        fontSize: 13,
+      }}
+    >
+      {message}
+    </div>
+  );
+}
+
+function SuccessBox({ message }: { message: string }) {
+  return (
+    <div
+      style={{
+        padding: 10,
+        borderRadius: 12,
+        background: "rgba(76,175,80,0.12)",
+        border: "1px solid rgba(76,175,80,0.35)",
         color: "rgba(255,255,255,0.92)",
         fontSize: 13,
       }}

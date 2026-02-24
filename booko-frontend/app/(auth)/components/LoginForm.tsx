@@ -5,10 +5,14 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import axios from "axios";
+import { loginUser } from "@/app/services/auth.service";
+import { useAuth } from "@/app/context/AuthContext";
 import { loginSchema, type LoginSchema } from "../schema";
 
 export default function LoginForm() {
   const router = useRouter();
+  const { login } = useAuth();
   const [serverError, setServerError] = useState<string | null>(null);
 
   const {
@@ -24,18 +28,29 @@ export default function LoginForm() {
   const onSubmit = async (values: LoginSchema) => {
     setServerError(null);
 
-    // ✅ MERN-ready: replace with your backend API call later
-    // const res = await fetch("http://localhost:5000/api/auth/login", {...})
-    await new Promise((r) => setTimeout(r, 500));
+    try {
+      const response = await loginUser({
+        email: values.email,
+        password: values.password,
+      });
 
-    // demo failure if email contains "fail"
-    if (values.email.toLowerCase().includes("fail")) {
-      setServerError("Login failed (demo). Try another email.");
-      return;
+      const { token, user } = response.data;
+      login(token, user);
+
+      router.push("/");
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 401) {
+          setServerError("Invalid email or password.");
+        } else {
+          setServerError(
+            error.response?.data?.message || "An error occurred. Please try again."
+          );
+        }
+      } else {
+        setServerError("A network error occurred.");
+      }
     }
-
-    localStorage.setItem("booko_token", "demo_token");
-    router.push("/auth/dashboard");
   };
 
   return (
