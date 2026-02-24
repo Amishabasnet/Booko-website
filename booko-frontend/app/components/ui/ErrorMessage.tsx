@@ -13,60 +13,15 @@ export default function ErrorMessage({
     message = "We encountered an error while processing your request.",
     onRetry
 }: ErrorMessageProps) {
-    const containerStyle: React.CSSProperties = {
-        background: "rgba(255, 77, 79, 0.05)",
-        border: "1px solid rgba(255, 77, 79, 0.2)",
-        borderRadius: "20px",
-        padding: "40px 30px",
-        textAlign: "center",
-        maxWidth: "600px",
-        margin: "40px auto",
-        color: "white",
-    };
-
-    const iconStyle: React.CSSProperties = {
-        fontSize: "48px",
-        marginBottom: "20px",
-        display: "block",
-    };
-
-    const titleStyle: React.CSSProperties = {
-        fontSize: "22px",
-        fontWeight: 800,
-        margin: "0 0 10px 0",
-        color: "#ff4d4f",
-    };
-
-    const textStyle: React.CSSProperties = {
-        fontSize: "16px",
-        color: "rgba(255, 255, 255, 0.6)",
-        margin: "0 0 25px 0",
-        lineHeight: 1.6,
-    };
-
-    const buttonStyle: React.CSSProperties = {
-        background: "#e50914",
-        color: "white",
-        border: "none",
-        padding: "12px 30px",
-        borderRadius: "12px",
-        fontWeight: 700,
-        cursor: "pointer",
-        fontSize: "15px",
-        transition: "transform 0.2s ease",
-    };
-
     return (
-        <div style={containerStyle}>
-            <span style={iconStyle}>⚠️</span>
-            <h3 style={titleStyle}>{title}</h3>
-            <p style={textStyle}>{message}</p>
+        <div className="bg-red-500/5 border border-red-500/20 rounded-3xl p-10 text-center max-w-lg mx-auto my-10 text-white">
+            <span className="text-5xl mb-5 block">⚠️</span>
+            <h3 className="text-2xl font-extrabold mb-2.5 text-red-500">{title}</h3>
+            <p className="text-base text-white/60 mb-6 leading-relaxed">{message}</p>
             {onRetry && (
                 <button
                     onClick={onRetry}
-                    style={buttonStyle}
-                    onMouseOver={(e) => e.currentTarget.style.transform = "scale(1.05)"}
-                    onMouseOut={(e) => e.currentTarget.style.transform = "scale(1)"}
+                    className="bg-primary hover:scale-105 active:scale-95 text-white border-none py-3 px-8 rounded-xl font-bold cursor-pointer text-sm transition-transform duration-200"
                 >
                     Try Again
                 </button>

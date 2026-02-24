@@ -29,7 +29,7 @@ export default function ProfilePage() {
             }
 
             try {
-                const response = await getProfile(token);
+                const response = await getProfile();
                 setProfile(response.data);
             } catch (err: unknown) {
                 let message = "Failed to fetch profile.";
@@ -47,115 +47,51 @@ export default function ProfilePage() {
 
     return (
         <ProtectedRoute>
-            <main style={containerStyle}>
-                <h1 style={titleStyle}>User Profile 👤</h1>
+            <main className="max-w-2xl mx-auto px-6 py-12 md:py-20 animate-in fade-in duration-500">
+                <h1 className="text-3xl md:text-4xl font-black mb-10 text-center tracking-tight">
+                    User Profile <span className="text-primary">.</span>
+                </h1>
 
                 {loading ? (
-                    <div style={messageStyle}>Loading profile...</div>
+                    <div className="flex flex-col items-center justify-center p-20 text-white/40">
+                        <div className="w-10 h-10 border-4 border-white/5 border-t-primary rounded-full animate-spin mb-4"></div>
+                        <p className="text-sm font-medium">Loading profile...</p>
+                    </div>
                 ) : error ? (
-                    <div style={errorStyle}>{error}</div>
+                    <div className="bg-primary/5 border border-primary/20 rounded-2xl p-6 text-center">
+                        <p className="text-primary font-bold text-sm">{error}</p>
+                    </div>
                 ) : profile ? (
-                    <div style={cardStyle}>
-                        <div style={fieldGroup}>
-                            <label style={labelStyle}>Full Name</label>
-                            <div style={valueStyle}>{profile.name}</div>
+                    <div className="bg-white/5 border border-white/10 rounded-[32px] p-8 md:p-10 shadow-2xl backdrop-blur-sm space-y-8">
+                        <div className="space-y-2">
+                            <label className="text-[10px] uppercase font-black text-white/30 tracking-[0.2em] ml-1">Full Name</label>
+                            <div className="text-xl font-bold bg-white/5 border border-white/5 rounded-2xl p-4">{profile.name}</div>
                         </div>
 
-                        <div style={fieldGroup}>
-                            <label style={labelStyle}>Email Address</label>
-                            <div style={valueStyle}>{profile.email}</div>
+                        <div className="space-y-2">
+                            <label className="text-[10px] uppercase font-black text-white/30 tracking-[0.2em] ml-1">Email Address</label>
+                            <div className="text-xl font-bold bg-white/5 border border-white/5 rounded-2xl p-4 flex items-center gap-3">
+                                <span className="opacity-40">✉️</span> {profile.email}
+                            </div>
                         </div>
 
-                        <div style={fieldGroup}>
-                            <label style={labelStyle}>Account Role</label>
-                            <div style={roleBadgeStyle}>{profile.role}</div>
+                        <div className="space-y-2">
+                            <label className="text-[10px] uppercase font-black text-white/30 tracking-[0.2em] ml-1">Account Role</label>
+                            <div className="flex">
+                                <span className="bg-primary/10 text-primary px-5 py-2 rounded-full text-xs font-black uppercase tracking-widest border border-primary/20">
+                                    {profile.role}
+                                </span>
+                            </div>
                         </div>
 
-                        <button onClick={logout} style={logoutBtnStyle}>
-                            Logout
-                        </button>
+                        <div className="pt-6 border-t border-white/5 mt-10">
+                            <button onClick={logout} className="w-full bg-transparent hover:bg-white/5 text-white/50 hover:text-white py-4 px-6 rounded-2xl font-bold text-sm border border-white/10 transition-all active:scale-[0.98]">
+                                Logout from Session
+                            </button>
+                        </div>
                     </div>
                 ) : null}
             </main>
         </ProtectedRoute>
     );
 }
-
-const containerStyle: React.CSSProperties = {
-    padding: 24,
-    fontFamily: "Inter, system-ui, Arial, sans-serif",
-    color: "white",
-    maxWidth: 600,
-    margin: "0 auto",
-};
-
-const titleStyle: React.CSSProperties = {
-    fontSize: 28,
-    fontWeight: 900,
-    marginBottom: 24,
-    textAlign: "center",
-};
-
-const cardStyle: React.CSSProperties = {
-    background: "rgba(255, 255, 255, 0.05)",
-    borderRadius: 16,
-    padding: 24,
-    border: "1px solid rgba(255, 255, 255, 0.1)",
-    display: "grid",
-    gap: 20,
-};
-
-const fieldGroup: React.CSSProperties = {
-    display: "grid",
-    gap: 4,
-};
-
-const labelStyle: React.CSSProperties = {
-    fontSize: 13,
-    fontWeight: 600,
-    color: "rgba(255, 255, 255, 0.5)",
-    textTransform: "uppercase",
-    letterSpacing: "0.05em",
-};
-
-const valueStyle: React.CSSProperties = {
-    fontSize: 18,
-    fontWeight: 500,
-};
-
-const roleBadgeStyle: React.CSSProperties = {
-    fontSize: 14,
-    fontWeight: 700,
-    background: "rgba(229, 9, 20, 0.2)",
-    color: "#e50914",
-    padding: "4px 12px",
-    borderRadius: 20,
-    width: "fit-content",
-    textTransform: "capitalize",
-};
-
-const messageStyle: React.CSSProperties = {
-    textAlign: "center",
-    fontSize: 16,
-    color: "rgba(255, 255, 255, 0.7)",
-};
-
-const errorStyle: React.CSSProperties = {
-    color: "#ff4d4f",
-    background: "rgba(255, 77, 79, 0.1)",
-    padding: 12,
-    borderRadius: 8,
-    textAlign: "center",
-};
-
-const logoutBtnStyle: React.CSSProperties = {
-    marginTop: 12,
-    padding: "12px",
-    borderRadius: 12,
-    background: "transparent",
-    border: "1px solid rgba(255, 255, 255, 0.2)",
-    color: "white",
-    fontWeight: 700,
-    cursor: "pointer",
-    transition: "all 0.2s",
-};

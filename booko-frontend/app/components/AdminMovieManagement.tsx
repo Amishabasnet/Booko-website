@@ -134,37 +134,39 @@ export default function AdminMovieManagement() {
     if (error) return <ErrorMessage message={error} onRetry={fetchMovies} />;
 
     return (
-        <section style={sectionStyle}>
-            <div style={headerStyle}>
-                <h2 style={titleStyle}>Movie Management</h2>
-                <button onClick={() => openModal()} style={addBtnStyle}>+ Add New Movie</button>
+        <section className="mt-10 bg-white/5 rounded-3xl p-6 md:p-8 border border-white/5 shadow-inner">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+                <h2 className="text-2xl font-black m-0 tracking-tight">Movie Management</h2>
+                <button onClick={() => openModal()} className="bg-green-500 hover:bg-green-600 text-sm py-2.5 px-6 rounded-xl font-bold cursor-pointer text-white border-none shadow-lg shadow-green-500/20 transition-all active:scale-95">
+                    + Add New Movie
+                </button>
             </div>
 
-            {error && <div style={errorStyle}>{error}</div>}
-            {success && <div style={successStyle}>{success}</div>}
+            {error && <div className="bg-red-500/10 text-red-500 p-4 rounded-xl mb-6 text-sm border border-red-500/10">{error}</div>}
+            {success && <div className="bg-green-500/10 text-green-500 p-4 rounded-xl mb-6 text-sm border border-green-500/10">{success}</div>}
 
-            <div style={tableContainerStyle}>
-                <table style={tableStyle}>
+            <div className="overflow-x-auto -mx-6 md:mx-0">
+                <table className="w-full border-collapse text-left min-w-[600px]">
                     <thead>
-                        <tr>
-                            <th style={thStyle}>Title</th>
-                            <th style={thStyle}>Genre</th>
-                            <th style={thStyle}>Duration</th>
-                            <th style={thStyle}>Language</th>
-                            <th style={thStyle}>Actions</th>
+                        <tr className="border-b border-white/10">
+                            <th className="p-4 text-white/40 font-bold text-xs uppercase tracking-widest">Title</th>
+                            <th className="p-4 text-white/40 font-bold text-xs uppercase tracking-widest">Genre</th>
+                            <th className="p-4 text-white/40 font-bold text-xs uppercase tracking-widest">Duration</th>
+                            <th className="p-4 text-white/40 font-bold text-xs uppercase tracking-widest">Language</th>
+                            <th className="p-4 text-white/40 font-bold text-xs uppercase tracking-widest text-right">Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="divide-y divide-white/5">
                         {movies.map(movie => (
-                            <tr key={movie._id} style={trStyle}>
-                                <td style={tdStyle}>{movie.title}</td>
-                                <td style={tdStyle}>{movie.genre.join(", ")}</td>
-                                <td style={tdStyle}>{movie.duration} min</td>
-                                <td style={tdStyle}>{movie.language}</td>
-                                <td style={tdStyle}>
-                                    <div style={actionGroupStyle}>
-                                        <button onClick={() => openModal(movie)} style={editBtnStyle}>Edit</button>
-                                        <button onClick={() => handleDelete(movie._id)} style={deleteBtnStyle}>Delete</button>
+                            <tr key={movie._id} className="hover:bg-white/[0.02] transition-colors group">
+                                <td className="p-4 text-sm font-semibold">{movie.title}</td>
+                                <td className="p-4 text-xs text-white/60">{movie.genre.join(", ")}</td>
+                                <td className="p-4 text-xs text-white/60">{movie.duration} min</td>
+                                <td className="p-4 text-xs text-white/60">{movie.language}</td>
+                                <td className="p-4 text-right">
+                                    <div className="flex justify-end gap-2 group-hover:translate-x-0 transition-transform">
+                                        <button onClick={() => openModal(movie)} className="bg-white/5 hover:bg-white/10 text-white/70 hover:text-white py-1.5 px-4 rounded-lg text-xs font-bold border border-white/10 transition-colors">Edit</button>
+                                        <button onClick={() => handleDelete(movie._id)} className="bg-primary/10 hover:bg-primary/20 text-primary py-1.5 px-4 rounded-lg text-xs font-bold border border-primary/20 transition-colors">Delete</button>
                                     </div>
                                 </td>
                             </tr>
@@ -174,46 +176,51 @@ export default function AdminMovieManagement() {
             </div>
 
             {modalOpen && (
-                <div style={modalOverlayStyle}>
-                    <div style={modalContentStyle}>
-                        <h3 style={{ margin: "0 0 20px 0" }}>{isEditing ? "Edit Movie" : "Add New Movie"}</h3>
-                        <form onSubmit={handleSubmit} style={formStyle}>
-                            <div style={formGroupStyle}>
-                                <label style={labelStyle}>Title</label>
-                                <input name="title" value={formData.title} onChange={handleInputChange} style={inputStyle} required />
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex justify-center items-center z-[1000] p-5 animate-in fade-in duration-300">
+                    <div className="bg-[#0a0a0a] border border-white/10 rounded-[32px] p-8 md:p-10 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl animate-in zoom-in-95 duration-300">
+                        <div className="flex justify-between items-center mb-8">
+                            <h3 className="text-2xl font-black tracking-tight">{isEditing ? "Edit Movie" : "Add New Movie"}</h3>
+                            <button onClick={() => setModalOpen(false)} className="text-white/40 hover:text-white text-2xl font-light">×</button>
+                        </div>
+                        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+                            <div className="grid gap-2">
+                                <label className="text-[10px] uppercase font-bold text-white/40 tracking-widest ml-1">Title</label>
+                                <input name="title" value={formData.title} onChange={handleInputChange} className="bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm focus:border-primary/50 focus:outline-none transition-colors" required />
                             </div>
-                            <div style={formGroupStyle}>
-                                <label style={labelStyle}>Description</label>
-                                <textarea name="description" value={formData.description} onChange={handleInputChange} style={textareaStyle} required />
+                            <div className="grid gap-2">
+                                <label className="text-[10px] uppercase font-bold text-white/40 tracking-widest ml-1">Description</label>
+                                <textarea name="description" value={formData.description} onChange={handleInputChange} className="bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm min-h-[120px] resize-vertical focus:border-primary/50 focus:outline-none transition-colors" required />
                             </div>
-                            <div style={formGridStyle}>
-                                <div style={formGroupStyle}>
-                                    <label style={labelStyle}>Genre (comma separated)</label>
-                                    <input name="genre" value={formData.genre} onChange={handleInputChange} style={inputStyle} required />
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="grid gap-2">
+                                    <label className="text-[10px] uppercase font-bold text-white/40 tracking-widest ml-1">Genre (comma separated)</label>
+                                    <input name="genre" value={formData.genre} onChange={handleInputChange} className="bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm focus:border-primary/50 focus:outline-none transition-colors" required />
                                 </div>
-                                <div style={formGroupStyle}>
-                                    <label style={labelStyle}>Duration (mins)</label>
-                                    <input type="number" name="duration" value={formData.duration} onChange={handleInputChange} style={inputStyle} required />
-                                </div>
-                            </div>
-                            <div style={formGridStyle}>
-                                <div style={formGroupStyle}>
-                                    <label style={labelStyle}>Language</label>
-                                    <input name="language" value={formData.language} onChange={handleInputChange} style={inputStyle} required />
-                                </div>
-                                <div style={formGroupStyle}>
-                                    <label style={labelStyle}>Release Date</label>
-                                    <input type="date" name="releaseDate" value={formData.releaseDate} onChange={handleInputChange} style={inputStyle} required />
+                                <div className="grid gap-2">
+                                    <label className="text-[10px] uppercase font-bold text-white/40 tracking-widest ml-1">Duration (mins)</label>
+                                    <input type="number" name="duration" value={formData.duration} onChange={handleInputChange} className="bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm focus:border-primary/50 focus:outline-none transition-colors" required />
                                 </div>
                             </div>
-                            <div style={formGroupStyle}>
-                                <label style={labelStyle}>Poster URL</label>
-                                <input name="posterImage" value={formData.posterImage} onChange={handleInputChange} style={inputStyle} />
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="grid gap-2">
+                                    <label className="text-[10px] uppercase font-bold text-white/40 tracking-widest ml-1">Language</label>
+                                    <input name="language" value={formData.language} onChange={handleInputChange} className="bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm focus:border-primary/50 focus:outline-none transition-colors" required />
+                                </div>
+                                <div className="grid gap-2">
+                                    <label className="text-[10px] uppercase font-bold text-white/40 tracking-widest ml-1">Release Date</label>
+                                    <input type="date" name="releaseDate" value={formData.releaseDate} onChange={handleInputChange} className="bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm focus:border-primary/50 focus:outline-none transition-colors" required />
+                                </div>
+                            </div>
+                            <div className="grid gap-2">
+                                <label className="text-[10px] uppercase font-bold text-white/40 tracking-widest ml-1">Poster URL</label>
+                                <input name="posterImage" value={formData.posterImage} onChange={handleInputChange} className="bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm focus:border-primary/50 focus:outline-none transition-colors" />
                             </div>
 
-                            <div style={modalActionsStyle}>
-                                <button type="button" onClick={() => setModalOpen(false)} style={cancelBtnStyle}>Cancel</button>
-                                <button type="submit" style={submitBtnStyle}>{isEditing ? "Update" : "Create"}</button>
+                            <div className="flex justify-end gap-4 mt-4 pt-10 border-t border-white/5">
+                                <button type="button" onClick={() => setModalOpen(false)} className="text-white/60 hover:text-white py-3 px-6 text-sm font-bold transition-colors">Cancel</button>
+                                <button type="submit" className="bg-primary hover:bg-primary/90 text-white py-4 px-10 rounded-2xl font-black text-sm shadow-xl shadow-primary/20 transition-all active:scale-95 uppercase tracking-widest">
+                                    {isEditing ? "Update Movie" : "Create Movie"}
+                                </button>
                             </div>
                         </form>
                     </div>
@@ -222,205 +229,3 @@ export default function AdminMovieManagement() {
         </section>
     );
 }
-
-// Styles
-const sectionStyle: React.CSSProperties = {
-    marginTop: "40px",
-    background: "rgba(255, 255, 255, 0.03)",
-    borderRadius: "24px",
-    padding: "30px",
-    border: "1px solid rgba(255, 255, 255, 0.05)",
-};
-
-const headerStyle: React.CSSProperties = {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: "30px",
-};
-
-const titleStyle: React.CSSProperties = {
-    fontSize: "24px",
-    fontWeight: 800,
-    margin: 0,
-};
-
-const addBtnStyle: React.CSSProperties = {
-    background: "#22c55e",
-    color: "white",
-    border: "none",
-    padding: "10px 20px",
-    borderRadius: "12px",
-    fontWeight: 700,
-    cursor: "pointer",
-    boxShadow: "0 4px 12px rgba(34, 197, 94, 0.2)",
-};
-
-const tableContainerStyle: React.CSSProperties = {
-    overflowX: "auto",
-};
-
-const tableStyle: React.CSSProperties = {
-    width: "100%",
-    borderCollapse: "collapse",
-    textAlign: "left",
-};
-
-const thStyle: React.CSSProperties = {
-    padding: "15px",
-    borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
-    color: "rgba(255, 255, 255, 0.5)",
-    fontWeight: 600,
-    fontSize: "14px",
-};
-
-const tdStyle: React.CSSProperties = {
-    padding: "15px",
-    borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
-    fontSize: "15px",
-};
-
-const trStyle: React.CSSProperties = {
-    transition: "background 0.2s",
-};
-
-const actionGroupStyle: React.CSSProperties = {
-    display: "flex",
-    gap: "10px",
-};
-
-const editBtnStyle: React.CSSProperties = {
-    background: "rgba(255, 255, 255, 0.05)",
-    color: "white",
-    border: "1px solid rgba(255, 255, 255, 0.1)",
-    padding: "6px 12px",
-    borderRadius: "8px",
-    cursor: "pointer",
-    fontSize: "13px",
-};
-
-const deleteBtnStyle: React.CSSProperties = {
-    background: "rgba(229, 9, 20, 0.1)",
-    color: "#e50914",
-    border: "1px solid rgba(229, 9, 20, 0.2)",
-    padding: "6px 12px",
-    borderRadius: "8px",
-    cursor: "pointer",
-    fontSize: "13px",
-};
-
-const modalOverlayStyle: React.CSSProperties = {
-    position: "fixed",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    background: "rgba(0, 0, 0, 0.8)",
-    backdropFilter: "blur(8px)",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 1000,
-    padding: "20px",
-};
-
-const modalContentStyle: React.CSSProperties = {
-    background: "#0a0a0a",
-    border: "1px solid rgba(255, 255, 255, 0.1)",
-    borderRadius: "24px",
-    padding: "40px",
-    width: "100%",
-    maxWidth: "600px",
-    maxHeight: "90vh",
-    overflowY: "auto",
-};
-
-const formStyle: React.CSSProperties = {
-    display: "flex",
-    flexDirection: "column",
-    gap: "20px",
-};
-
-const formGroupStyle: React.CSSProperties = {
-    display: "flex",
-    flexDirection: "column",
-    gap: "8px",
-};
-
-const formGridStyle: React.CSSProperties = {
-    display: "grid",
-    gridTemplateColumns: "1fr 1fr",
-    gap: "15px",
-};
-
-const labelStyle: React.CSSProperties = {
-    fontSize: "13px",
-    color: "rgba(255, 255, 255, 0.4)",
-    fontWeight: 600,
-};
-
-const inputStyle: React.CSSProperties = {
-    background: "rgba(255, 255, 255, 0.05)",
-    border: "1px solid rgba(255, 255, 255, 0.1)",
-    borderRadius: "10px",
-    padding: "12px",
-    color: "white",
-    fontSize: "15px",
-};
-
-const textareaStyle: React.CSSProperties = {
-    ...inputStyle,
-    minHeight: "100px",
-    resize: "vertical",
-};
-
-const modalActionsStyle: React.CSSProperties = {
-    display: "flex",
-    justifyContent: "flex-end",
-    gap: "15px",
-    marginTop: "10px",
-};
-
-const cancelBtnStyle: React.CSSProperties = {
-    background: "transparent",
-    color: "rgba(255, 255, 255, 0.6)",
-    border: "none",
-    padding: "12px 24px",
-    cursor: "pointer",
-    fontWeight: 600,
-};
-
-const submitBtnStyle: React.CSSProperties = {
-    background: "#e50914",
-    color: "white",
-    border: "none",
-    padding: "12px 30px",
-    borderRadius: "12px",
-    fontWeight: 700,
-    cursor: "pointer",
-    boxShadow: "0 6px 16px rgba(229, 9, 20, 0.2)",
-};
-
-const errorStyle: React.CSSProperties = {
-    background: "rgba(229, 9, 20, 0.1)",
-    color: "#e50914",
-    padding: "12px 20px",
-    borderRadius: "12px",
-    marginBottom: "20px",
-    fontSize: "14px",
-};
-
-const successStyle: React.CSSProperties = {
-    background: "rgba(34, 197, 94, 0.1)",
-    color: "#22c55e",
-    padding: "12px 20px",
-    borderRadius: "12px",
-    marginBottom: "20px",
-    fontSize: "14px",
-};
-
-const loadingStyle: React.CSSProperties = {
-    textAlign: "center",
-    padding: "40px",
-    color: "rgba(255, 255, 255, 0.4)",
-};

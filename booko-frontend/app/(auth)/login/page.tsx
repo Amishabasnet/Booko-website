@@ -2,15 +2,15 @@ import LoginForm from "../components/LoginForm";
 
 export default function LoginPage() {
   return (
-    <>
-      <h1 style={{ margin: 0, fontSize: 22, fontWeight: 900 }}>
-        Welcome back 🎬
+    <div className="animate-in slide-in-from-bottom-4 duration-500">
+      <h1 className="text-3xl md:text-4xl font-black mb-2 tracking-tight">
+        Welcome back <span className="text-primary">.</span>
       </h1>
-      <p style={{ margin: "8px 0 16px", color: "rgba(255,255,255,0.75)" }}>
-        Login to continue booking tickets on <b>Booko</b>.
+      <p className="text-sm text-white/50 mb-10 leading-relaxed max-w-sm">
+        Login to continue booking tickets on <b className="text-white">Booko</b>.
       </p>
 
       <LoginForm />
-    </>
+    </div>
   );
 }

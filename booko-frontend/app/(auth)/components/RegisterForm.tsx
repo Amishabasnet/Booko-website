@@ -50,48 +50,52 @@ export default function RegisterForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} style={{ display: "grid", gap: 12 }}>
-      <Field
-        label="Full name"
-        placeholder="Your name"
-        error={errors.name?.message}
-        {...register("name")}
-      />
+    <form onSubmit={handleSubmit(onSubmit)} className="grid gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <Field
+          label="Full name"
+          placeholder="Your name"
+          error={errors.name?.message}
+          {...register("name")}
+        />
 
-      <Field
-        label="Email"
-        placeholder="you@booko.com"
-        type="email"
-        error={errors.email?.message}
-        {...register("email")}
-      />
+        <Field
+          label="Email"
+          placeholder="you@booko.com"
+          type="email"
+          error={errors.email?.message}
+          {...register("email")}
+        />
+      </div>
 
-      <Field
-        label="Password"
-        placeholder="••••••••"
-        type="password"
-        error={errors.password?.message}
-        {...register("password")}
-      />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <Field
+          label="Password"
+          placeholder="••••••••"
+          type="password"
+          error={errors.password?.message}
+          {...register("password")}
+        />
 
-      <Field
-        label="Confirm password"
-        placeholder="••••••••"
-        type="password"
-        error={errors.confirmPassword?.message}
-        {...register("confirmPassword")}
-      />
+        <Field
+          label="Confirm password"
+          placeholder="••••••••"
+          type="password"
+          error={errors.confirmPassword?.message}
+          {...register("confirmPassword")}
+        />
+      </div>
 
       {successMessage ? <SuccessBox message={successMessage} /> : null}
       {serverError ? <ErrorBox message={serverError} /> : null}
 
-      <button type="submit" disabled={isSubmitting} style={primaryBtn}>
-        {isSubmitting ? "Creating..." : "Create account"}
+      <button type="submit" disabled={isSubmitting} className="bg-primary hover:bg-primary/90 text-white py-4 px-6 rounded-2xl font-black text-sm shadow-xl shadow-primary/20 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed mt-2">
+        {isSubmitting ? "Generating digital key..." : "Create account"}
       </button>
 
-      <p style={{ margin: 0, fontSize: 13, color: "rgba(255,255,255,0.75)" }}>
+      <p className="text-sm text-center text-white/50 m-0">
         Already have a Booko account?{" "}
-        <Link href="/login" style={linkStyle}>
+        <Link href="/login" className="text-white font-black hover:text-primary transition-colors underline decoration-primary/30 underline-offset-4">
           Login
         </Link>
       </p>
@@ -99,34 +103,9 @@ export default function RegisterForm() {
   );
 }
 
-const primaryBtn: React.CSSProperties = {
-  padding: "11px 14px",
-  borderRadius: 12,
-  border: "1px solid rgba(255,255,255,0.12)",
-  background: "rgba(229,9,20,0.95)",
-  color: "white",
-  fontWeight: 800,
-  cursor: "pointer",
-};
-
-const linkStyle: React.CSSProperties = {
-  fontWeight: 800,
-  color: "white",
-  textDecoration: "underline",
-};
-
 function ErrorBox({ message }: { message: string }) {
   return (
-    <div
-      style={{
-        padding: 10,
-        borderRadius: 12,
-        background: "rgba(255,77,79,0.12)",
-        border: "1px solid rgba(255,77,79,0.35)",
-        color: "rgba(255,255,255,0.92)",
-        fontSize: 13,
-      }}
-    >
+    <div className="bg-primary/10 border border-primary/30 text-white/90 p-4 rounded-2xl text-xs font-medium animate-in shake-in duration-300">
       {message}
     </div>
   );
@@ -134,16 +113,7 @@ function ErrorBox({ message }: { message: string }) {
 
 function SuccessBox({ message }: { message: string }) {
   return (
-    <div
-      style={{
-        padding: 10,
-        borderRadius: 12,
-        background: "rgba(76,175,80,0.12)",
-        border: "1px solid rgba(76,175,80,0.35)",
-        color: "rgba(255,255,255,0.92)",
-        fontSize: 13,
-      }}
-    >
+    <div className="bg-green-500/10 border border-green-500/30 text-green-500 p-4 rounded-2xl text-xs font-medium animate-in zoom-in-95 duration-300">
       {message}
     </div>
   );
@@ -156,24 +126,17 @@ type FieldProps = React.InputHTMLAttributes<HTMLInputElement> & {
 
 function Field({ label, error, ...props }: FieldProps) {
   return (
-    <div style={{ display: "grid", gap: 6 }}>
-      <label style={{ fontSize: 13, fontWeight: 700 }}>{label}</label>
+    <div className="grid gap-2">
+      <label className="text-[10px] uppercase font-black text-white/40 tracking-[0.2em] ml-1">{label}</label>
       <input
         {...props}
-        style={{
-          padding: "11px 12px",
-          borderRadius: 12,
-          border: `1px solid ${error ? "rgba(255,77,79,0.7)" : "rgba(255,255,255,0.14)"}`,
-          background: "rgba(255,255,255,0.06)",
-          color: "white",
-          outline: "none",
-        }}
+        className={`bg-white/5 border ${error ? "border-primary/50" : "border-white/10"} rounded-2xl p-4 text-white text-sm focus:border-primary/50 focus:outline-none transition-all placeholder:text-white/20`}
       />
-      {error ? (
-        <span style={{ color: "rgba(255,120,120,1)", fontSize: 12 }}>
+      {error && (
+        <span className="text-primary text-[10px] font-bold uppercase tracking-wider ml-1 mt-1">
           {error}
         </span>
-      ) : null}
+      )}
     </div>
   );
 }

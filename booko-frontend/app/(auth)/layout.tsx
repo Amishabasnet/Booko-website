@@ -2,73 +2,29 @@ import type { ReactNode } from "react";
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        display: "grid",
-        placeItems: "center",
-        padding: 16,
-        background:
-          "radial-gradient(circle at top, rgba(229,9,20,0.14), transparent 45%), linear-gradient(135deg, #0b0b0f, #111827)",
-        color: "white",
-      }}
-    >
-      <div style={{ width: "100%", maxWidth: 420 }}>
+    <div className="min-h-screen grid place-items-center p-6 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent bg-[#0a0a0a] text-white overflow-x-hidden">
+      <div className="w-full max-w-md animate-in fade-in zoom-in-95 duration-700">
         {/* Brand Header */}
-        <div style={{ marginBottom: 18 }}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
-              marginBottom: 8,
-            }}
-          >
-            <div
-              style={{
-                width: 40,
-                height: 40,
-                borderRadius: 12,
-                background: "rgba(229,9,20,0.95)",
-                display: "grid",
-                placeItems: "center",
-                fontWeight: 900,
-              }}
-            >
-              B
-            </div>
-            <div>
-              <div style={{ fontSize: 20, fontWeight: 900 }}>Booko</div>
-              <div style={{ fontSize: 13, color: "rgba(255,255,255,0.72)" }}>
-                Movie ticketing • Quick booking
-              </div>
+        <div className="mb-8 flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-xl font-black shadow-lg shadow-primary/20">
+            B
+          </div>
+          <div>
+            <div className="text-2xl font-black tracking-tighter">BOOKO<span className="text-primary">.</span></div>
+            <div className="text-xs text-white/50 font-bold uppercase tracking-widest mt-0.5">
+              Experience Cinema
             </div>
           </div>
         </div>
 
         {/* Card */}
-        <div
-          style={{
-            border: "1px solid rgba(255,255,255,0.10)",
-            borderRadius: 18,
-            padding: 18,
-            background: "rgba(255,255,255,0.06)",
-            boxShadow: "0 18px 50px rgba(0,0,0,0.45)",
-            backdropFilter: "blur(10px)",
-          }}
-        >
+        <div className="bg-white/5 border border-white/10 rounded-[32px] p-8 md:p-10 shadow-2xl backdrop-blur-md">
           {children}
         </div>
 
-        <p
-          style={{
-            marginTop: 14,
-            fontSize: 12,
-            color: "rgba(255,255,255,0.65)",
-            textAlign: "center",
-          }}
-        >
-          By continuing, you agree to Booko Terms & Privacy (dummy).
+        <p className="mt-8 text-[10px] text-white/30 text-center uppercase font-bold tracking-widest leading-relaxed">
+          By continuing, you agree to Booko's<br />
+          <span className="text-white/50">Terms of Service & Privacy Policy</span>
         </p>
       </div>
     </div>
