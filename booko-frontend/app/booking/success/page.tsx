@@ -22,7 +22,7 @@ function SuccessContent() {
                 </div>
                 <div style={detailRowStyle}>
                     <span style={labelStyle}>Amount Paid:</span>
-                    <span style={totalStyle}>${total}</span>
+                    <span style={totalStyle}>NPR {total}</span>
                 </div>
             </div>
 

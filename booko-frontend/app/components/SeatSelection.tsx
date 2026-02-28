@@ -115,7 +115,7 @@ export default function SeatSelection({ showtimeId, onConfirm }: { showtimeId: s
             <div className="flex flex-col sm:flex-row justify-between items-center border-t border-white/10 pt-8 gap-6 sm:gap-0">
                 <div className="text-center sm:text-left">
                     <p className="text-sm text-white/50 m-0 mb-1.5">{selectedSeats.length} seats selected</p>
-                    <h3 className="text-2xl md:text-3xl font-black m-0 tracking-tight">Total: ${totalPrice.toFixed(2)}</h3>
+                    <h3 className="text-2xl md:text-3xl font-black m-0 tracking-tight">Total: NPR {totalPrice.toFixed(2)}</h3>
                 </div>
                 <button
                     onClick={() => onConfirm(selectedSeats, totalPrice)}

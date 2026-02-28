@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const apiClient = axios.create({
-    baseURL: "http://localhost:5000/api",
+    baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050/api",
 });
 
 // Request Interceptor: Attach JWT to every request

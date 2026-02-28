@@ -8,6 +8,7 @@ export const registerUser = (data: {
   phoneNumber: string;
   dob: string;
   gender: string;
+  role: string;
   password: string;
 }) => apiClient.post(`${AUTH_URL}/register`, data);
 
@@ -18,3 +19,12 @@ export const loginUser = (data: {
 
 export const getProfile = () =>
   apiClient.get(`${AUTH_URL}/profile`);
+
+export const updateProfile = (data: {
+  name?: string;
+  email?: string;
+  phoneNumber?: string;
+  dob?: string;
+  gender?: string;
+  password?: string;
+}) => apiClient.put(`${AUTH_URL}/profile`, data);

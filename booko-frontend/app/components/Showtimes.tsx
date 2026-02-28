@@ -83,7 +83,7 @@ export default function Showtimes({ movieId }: { movieId: string }) {
                             <Link key={st._id} href={`/booking/${st._id}`} style={linkStyle}>
                                 <div style={badgeStyle}>
                                     <span style={timeStyle}>{st.showTime}</span>
-                                    <span style={priceStyle}>${st.ticketPrice}</span>
+                                    <span style={priceStyle}>NPR {st.ticketPrice}</span>
                                 </div>
                             </Link>
                         ))}

@@ -107,7 +107,7 @@ export default function MovieDetailPage({ params }: { params: Promise<{ id: stri
 
                         <button
                             onClick={() => document.getElementById("showtimes")?.scrollIntoView({ behavior: "smooth" })}
-                            className="w-full mt-10 py-4 md:py-5 rounded-2xl bg-primary shadow-xl shadow-primary/30 text-white border-none text-base md:text-lg font-black cursor-pointer transition-all active:scale-[0.98] uppercase tracking-wide hover:bg-primary/90"
+                            className="w-full sm:w-auto mt-10 px-8 md:px-12 py-4 md:py-5 rounded-2xl bg-primary shadow-xl shadow-primary/30 text-white border-none text-base md:text-lg font-black cursor-pointer transition-all active:scale-[0.98] uppercase tracking-wide hover:bg-primary/90"
                         >
                             Book Tickets Now
                         </button>

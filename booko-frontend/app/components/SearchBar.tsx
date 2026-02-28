@@ -52,13 +52,13 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
                     onChange={(e) => setGenre(e.target.value)}
                     style={selectStyle}
                 >
-                    <option value="">All Genres</option>
-                    <option value="Action">Action</option>
-                    <option value="Comedy">Comedy</option>
-                    <option value="Drama">Drama</option>
-                    <option value="Sci-Fi">Sci-Fi</option>
-                    <option value="Horror">Horror</option>
-                    <option value="Romance">Romance</option>
+                    <option value="" style={{ background: 'black', color: 'white' }}>All Genres</option>
+                    <option value="Action" style={{ background: 'black', color: 'white' }}>Action</option>
+                    <option value="Comedy" style={{ background: 'black', color: 'white' }}>Comedy</option>
+                    <option value="Drama" style={{ background: 'black', color: 'white' }}>Drama</option>
+                    <option value="Sci-Fi" style={{ background: 'black', color: 'white' }}>Sci-Fi</option>
+                    <option value="Horror" style={{ background: 'black', color: 'white' }}>Horror</option>
+                    <option value="Romance" style={{ background: 'black', color: 'white' }}>Romance</option>
                 </select>
 
                 <input
@@ -119,7 +119,7 @@ const filterGroupStyle: React.CSSProperties = {
 };
 
 const selectStyle: React.CSSProperties = {
-    background: "rgba(255, 255, 255, 0.05)",
+    background: "black",
     border: "1px solid rgba(255, 255, 255, 0.1)",
     borderRadius: "15px",
     padding: "12px 20px",

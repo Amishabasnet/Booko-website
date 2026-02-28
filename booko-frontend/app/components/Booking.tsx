@@ -25,7 +25,8 @@ export default function Booking({ showtimeId, selectedSeats, totalAmount, onBack
             // 1. Create the booking
             const bookingRes = await createBooking({
                 showtimeId,
-                selectedSeats
+                selectedSeats,
+                totalAmount
             });
 
             const bookingId = bookingRes.data.booking._id;
@@ -58,7 +59,7 @@ export default function Booking({ showtimeId, selectedSeats, totalAmount, onBack
 
                 <div style={infoRowStyle}>
                     <span style={labelStyle}>Total Amount:</span>
-                    <span style={totalStyle}>${totalAmount.toFixed(2)}</span>
+                    <span style={totalStyle}>NPR {totalAmount.toFixed(2)}</span>
                 </div>
 
                 <div style={paymentSectionStyle}>

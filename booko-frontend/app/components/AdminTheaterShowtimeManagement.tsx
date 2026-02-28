@@ -276,7 +276,7 @@ export default function AdminTheaterShowtimeManagement() {
                                         <td className="p-4 text-xs text-white/60">{s.theaterId?.name}</td>
                                         <td className="p-4 text-xs text-white/60">{s.screenId?.screenName}</td>
                                         <td className="p-4 text-xs text-white/60">{new Date(s.showDate).toLocaleDateString()} {s.showTime}</td>
-                                        <td className="p-4 text-xs text-white/60">${s.ticketPrice}</td>
+                                        <td className="p-4 text-xs text-white/60">NPR {s.ticketPrice}</td>
                                         <td className="p-4 text-right">
                                             <button onClick={() => handleDeleteShowtime(s._id)} className="bg-primary/10 hover:bg-primary/20 text-primary py-1.5 px-4 rounded-lg text-xs font-bold border border-primary/20 transition-colors">Delete</button>
                                         </td>

@@ -58,6 +58,26 @@ export const authService = {
     };
   },
 
+  async updateProfile(userId: string, data: Partial<RegisterDto>) {
+    const user = await userRepository.findById(userId);
+    if (!user) throw new ApiError(404, "User not found");
+
+    if (data.email && data.email !== user.email) {
+      const exists = await userRepository.findByEmail(data.email);
+      if (exists) throw new ApiError(409, "Email already exists");
+      user.email = data.email;
+    }
+
+    if (data.password) user.passwordHash = await bcrypt.hash(data.password, 10);
+    if (data.name) user.name = data.name;
+    if (data.phoneNumber) user.phoneNumber = data.phoneNumber;
+    if (data.dob) user.dob = new Date(data.dob);
+    if (data.gender) user.gender = data.gender;
+
+    await user.save();
+    return this.getProfile(userId);
+  },
+
   async login(data: LoginDto) {
     const user = await userRepository.findByEmail(data.email);
     if (!user) throw new ApiError(404, "Email not found");
