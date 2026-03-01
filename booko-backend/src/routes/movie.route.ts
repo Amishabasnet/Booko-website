@@ -3,6 +3,7 @@ import { movieController } from "../controllers/movie.controller";
 import { movieValidation } from "../validators/movie.validator";
 import { validateRequest } from "../middlewares/express-validator.middleware";
 import { requireAuth, authorizeRoles } from "../middlewares/auth.middleware";
+import { upload } from "../middlewares/upload.middleware";
 
 const router = Router();
 
@@ -15,6 +16,7 @@ router.post(
     "/",
     requireAuth,
     authorizeRoles(["admin"]),
+    upload.single("posterImage"),
     movieValidation,
     validateRequest,
     movieController.create
@@ -24,6 +26,7 @@ router.put(
     "/:id",
     requireAuth,
     authorizeRoles(["admin"]),
+    upload.single("posterImage"),
     movieValidation,
     validateRequest,
     movieController.update

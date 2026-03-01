@@ -90,8 +90,8 @@ export default function SeatSelection({ showtimeId, onConfirm }: { showtimeId: s
                                         key={seatId}
                                         onClick={() => toggleSeat(seatId)}
                                         disabled={isBooked}
-                                        className={`w-7 h-7 md:w-8 md:h-8 rounded-lg border-2 border-transparent transition-all duration-200 cursor-pointer disabled:bg-[#333] disabled:cursor-not-allowed ${isSelected ? "bg-primary border-primary scale-110" : "bg-white/10 hover:bg-white/20"}`}
-                                        title={`${seat.row}${seat.col} (${seat.type})`}
+                                        className={`w-7 h-7 md:w-8 md:h-8 rounded-lg border-2 border-transparent transition-all duration-200 cursor-pointer disabled:bg-green-500 disabled:cursor-not-allowed ${isSelected ? "bg-primary border-primary scale-110" : "bg-white/10 hover:bg-white/20"}`}
+                                        title={`${seat.row}${seat.col} (${seat.type}${isBooked ? ' - Booked' : ''})`}
                                     />
                                 );
                             })}
@@ -108,14 +108,14 @@ export default function SeatSelection({ showtimeId, onConfirm }: { showtimeId: s
                     <div className="w-5 h-5 rounded bg-primary"></div> Selected
                 </div>
                 <div className="flex items-center gap-2">
-                    <div className="w-5 h-5 rounded bg-[#333]"></div> Booked
+                    <div className="w-5 h-5 rounded bg-green-500"></div> Booked
                 </div>
             </div>
 
             <div className="flex flex-col sm:flex-row justify-between items-center border-t border-white/10 pt-8 gap-6 sm:gap-0">
                 <div className="text-center sm:text-left">
                     <p className="text-sm text-white/50 m-0 mb-1.5">{selectedSeats.length} seats selected</p>
-                    <h3 className="text-2xl md:text-3xl font-black m-0 tracking-tight">Total: ${totalPrice.toFixed(2)}</h3>
+                    <h3 className="text-2xl md:text-3xl font-black m-0 tracking-tight">Total: NPR {totalPrice.toFixed(2)}</h3>
                 </div>
                 <button
                     onClick={() => onConfirm(selectedSeats, totalPrice)}

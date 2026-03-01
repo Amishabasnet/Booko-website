@@ -14,11 +14,17 @@ export const movieController = {
     },
 
     async create(req: Request, res: Response) {
+        if (req.file) {
+            req.body.posterImage = `/uploads/${req.file.filename}`;
+        }
         const movie = await movieService.createMovie(req.body);
         return res.status(201).json({ success: true, message: "Movie created successfully", movie });
     },
 
     async update(req: Request, res: Response) {
+        if (req.file) {
+            req.body.posterImage = `/uploads/${req.file.filename}`;
+        }
         const movie = await movieService.updateMovie(req.params.id, req.body);
         return res.json({ success: true, message: "Movie updated successfully", movie });
     },

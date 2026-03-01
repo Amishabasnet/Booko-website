@@ -114,7 +114,7 @@ export default function AdminBookings() {
                                     </div>
                                 </td>
                                 <td className="p-4 text-xs font-bold text-white/70">{b.selectedSeats.join(", ")}</td>
-                                <td className="p-4 text-sm font-black text-primary">${b.totalAmount}</td>
+                                <td className="p-4 text-sm font-black text-primary">NPR {b.totalAmount}</td>
                                 <td className="p-4 text-center">
                                     <span className={`inline-block py-1 pr-3 pl-3.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${getStatusClasses(b.bookingStatus)}`}>
                                         {b.bookingStatus}

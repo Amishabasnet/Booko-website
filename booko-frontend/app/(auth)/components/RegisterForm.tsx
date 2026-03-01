@@ -21,7 +21,7 @@ export default function RegisterForm() {
   } = useForm<RegisterSchema>({
     resolver: zodResolver(registerSchema),
     mode: "onTouched",
-    defaultValues: { name: "", email: "", phoneNumber: "", dob: "", gender: "prefer_not_to_say", password: "", confirmPassword: "" },
+    defaultValues: { name: "", email: "", phoneNumber: "", dob: "", gender: "prefer_not_to_say", role: "user", password: "", confirmPassword: "" },
   });
 
   const onSubmit = async (values: RegisterSchema) => {
@@ -35,6 +35,7 @@ export default function RegisterForm() {
         phoneNumber: values.phoneNumber,
         dob: values.dob,
         gender: values.gender,
+        role: values.role,
         password: values.password,
       });
 
@@ -54,39 +55,35 @@ export default function RegisterForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="grid gap-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <Field
-          label="Full name"
-          placeholder="Your name"
-          error={errors.name?.message}
-          {...register("name")}
-        />
+      <Field
+        label="Full name"
+        placeholder="Your name"
+        error={errors.name?.message}
+        {...register("name")}
+      />
 
-        <Field
-          label="Email"
-          placeholder="you@booko.com"
-          type="email"
-          error={errors.email?.message}
-          {...register("email")}
-        />
-      </div>
+      <Field
+        label="Email"
+        placeholder="you@booko.com"
+        type="email"
+        error={errors.email?.message}
+        {...register("email")}
+      />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <Field
-          label="Phone Number"
-          placeholder="+1 (555) 000-0000"
-          type="tel"
-          error={errors.phoneNumber?.message}
-          {...register("phoneNumber")}
-        />
+      <Field
+        label="Phone Number"
+        placeholder="+1 (555) 000-0000"
+        type="tel"
+        error={errors.phoneNumber?.message}
+        {...register("phoneNumber")}
+      />
 
-        <Field
-          label="Date of Birth"
-          type="date"
-          error={errors.dob?.message}
-          {...register("dob")}
-        />
-      </div>
+      <Field
+        label="Date of Birth"
+        type="date"
+        error={errors.dob?.message}
+        {...register("dob")}
+      />
 
       <SelectField
         label="Gender"
@@ -99,23 +96,30 @@ export default function RegisterForm() {
         <option value="prefer_not_to_say">Prefer not to say</option>
       </SelectField>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <Field
-          label="Password"
-          placeholder="••••••••"
-          type="password"
-          error={errors.password?.message}
-          {...register("password")}
-        />
+      <SelectField
+        label="Account Role"
+        error={errors.role?.message}
+        {...register("role")}
+      >
+        <option value="user">User</option>
+        <option value="admin">Admin</option>
+      </SelectField>
 
-        <Field
-          label="Confirm password"
-          placeholder="••••••••"
-          type="password"
-          error={errors.confirmPassword?.message}
-          {...register("confirmPassword")}
-        />
-      </div>
+      <Field
+        label="Password"
+        placeholder="••••••••"
+        type="password"
+        error={errors.password?.message}
+        {...register("password")}
+      />
+
+      <Field
+        label="Confirm password"
+        placeholder="••••••••"
+        type="password"
+        error={errors.confirmPassword?.message}
+        {...register("confirmPassword")}
+      />
 
       {successMessage ? <SuccessBox message={successMessage} /> : null}
       {serverError ? <ErrorBox message={serverError} /> : null}

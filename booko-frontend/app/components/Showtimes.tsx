@@ -26,7 +26,7 @@ interface GroupedShowtimes {
     };
 }
 
-export default function Showtimes({ movieId }: { movieId: string }) {
+export default function Showtimes({ movieId, onShowtimesLoaded }: { movieId: string, onShowtimesLoaded?: (showtimes: any[]) => void }) {
     const [groupedShowtimes, setGroupedShowtimes] = useState<GroupedShowtimes>({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -50,6 +50,10 @@ export default function Showtimes({ movieId }: { movieId: string }) {
                 }, {});
 
                 setGroupedShowtimes(grouped);
+
+                if (onShowtimesLoaded) {
+                    onShowtimesLoaded(showtimes);
+                }
             } catch (err: unknown) {
                 let message = "Failed to load showtimes.";
                 if (axios.isAxiosError(err)) {
@@ -64,26 +68,26 @@ export default function Showtimes({ movieId }: { movieId: string }) {
         fetchShowtimes();
     }, [movieId]);
 
-    if (loading) return <div style={messageStyle}>Finding theaters near you... 🔍</div>;
-    if (error) return <div style={errorStyle}>{error}</div>;
+    if (loading) return <div className="text-white/60 text-[15px]">Finding theaters near you... 🔍</div>;
+    if (error) return <div className="text-[#ff4d4f] text-[15px]">{error}</div>;
 
     const theaterIds = Object.keys(groupedShowtimes);
 
     if (theaterIds.length === 0) {
-        return <div style={emptyStyle}>No showtimes available for this movie right now.</div>;
+        return <div className="text-white/40 italic text-[15px]">No showtimes available for this movie right now.</div>;
     }
 
     return (
-        <div style={containerStyle}>
+        <div className="grid gap-6">
             {theaterIds.map((tid) => (
-                <div key={tid} style={theaterCardStyle}>
-                    <h3 style={theaterNameStyle}>{groupedShowtimes[tid].theaterName}</h3>
-                    <div style={showtimeGridStyle}>
+                <div key={tid} className="bg-white/5 p-5 md:p-6 rounded-2xl border border-white/10">
+                    <h3 className="text-lg font-extrabold mb-4 text-white">{groupedShowtimes[tid].theaterName}</h3>
+                    <div className="flex flex-wrap gap-3">
                         {groupedShowtimes[tid].showtimes.map((st) => (
-                            <Link key={st._id} href={`/booking/${st._id}`} style={linkStyle}>
-                                <div style={badgeStyle}>
-                                    <span style={timeStyle}>{st.showTime}</span>
-                                    <span style={priceStyle}>${st.ticketPrice}</span>
+                            <Link key={st._id} href={`/booking/${st._id}`} className="no-underline">
+                                <div className="bg-white/5 border border-white/10 py-3 px-5 rounded-2xl flex flex-col items-center gap-0.5 transition-all duration-200 hover:bg-white/10 hover:border-white/20 hover:scale-105 active:scale-95">
+                                    <span className="text-base font-extrabold text-white">{st.showTime}</span>
+                                    <span className="text-[11px] font-semibold text-white/50">NPR {st.ticketPrice}</span>
                                 </div>
                             </Link>
                         ))}
@@ -94,71 +98,4 @@ export default function Showtimes({ movieId }: { movieId: string }) {
     );
 }
 
-const containerStyle: React.CSSProperties = {
-    display: "grid",
-    gap: "24px",
-};
 
-const theaterCardStyle: React.CSSProperties = {
-    background: "rgba(255, 255, 255, 0.03)",
-    padding: "24px",
-    borderRadius: "20px",
-    border: "1px solid rgba(255, 255, 255, 0.08)",
-};
-
-const theaterNameStyle: React.CSSProperties = {
-    fontSize: "18px",
-    fontWeight: 800,
-    marginBottom: "16px",
-    color: "#fff",
-};
-
-const showtimeGridStyle: React.CSSProperties = {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: "12px",
-};
-
-const linkStyle: React.CSSProperties = {
-    textDecoration: "none",
-};
-
-const badgeStyle: React.CSSProperties = {
-    background: "rgba(255, 255, 255, 0.05)",
-    border: "1px solid rgba(255, 255, 255, 0.1)",
-    padding: "12px 20px",
-    borderRadius: "14px",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    gap: "2px",
-    transition: "all 0.2s ease",
-};
-
-const timeStyle: React.CSSProperties = {
-    fontSize: "16px",
-    fontWeight: 800,
-    color: "#fff",
-};
-
-const priceStyle: React.CSSProperties = {
-    fontSize: "11px",
-    fontWeight: 600,
-    color: "rgba(255, 255, 255, 0.5)",
-};
-
-const messageStyle: React.CSSProperties = {
-    color: "rgba(255, 255, 255, 0.6)",
-    fontSize: "15px",
-};
-
-const errorStyle: React.CSSProperties = {
-    color: "#ff4d4f",
-    fontSize: "15px",
-};
-
-const emptyStyle: React.CSSProperties = {
-    color: "rgba(255, 255, 255, 0.4)",
-    fontStyle: "italic",
-    fontSize: "15px",
-};

@@ -3,6 +3,7 @@
 import { useEffect, useState, use } from "react";
 import axios from "axios";
 import { getMovieById } from "@/app/services/movie.service";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Showtimes from "@/app/components/Showtimes";
 import Loader from "@/app/components/ui/Loader";
@@ -24,6 +25,8 @@ export default function MovieDetailPage({ params }: { params: Promise<{ id: stri
     const [movie, setMovie] = useState<MovieDetail | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [availableShowtimes, setAvailableShowtimes] = useState<any[]>([]);
+    const router = useRouter();
 
     useEffect(() => {
         const fetchMovieData = async () => {
@@ -57,10 +60,10 @@ export default function MovieDetailPage({ params }: { params: Promise<{ id: stri
             </header>
 
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-10 lg:gap-20 items-start max-w-7xl mx-auto">
-                <div className="lg:sticky lg:top-10">
+                <div className="lg:sticky lg:top-10 w-full max-w-sm md:max-w-md mx-auto lg:max-w-none">
                     {movie.posterImage ? (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={movie.posterImage} alt={movie.title} className="w-full rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/10" />
+                        <img src={movie.posterImage} alt={movie.title} className="w-full aspect-[4/5] md:aspect-auto object-cover rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/10" />
                     ) : (
                         <div className="aspect-[2/3] bg-white/5 rounded-3xl flex items-center justify-center text-white/30 text-lg font-bold border border-white/5">
                             No Poster Available
@@ -103,11 +106,20 @@ export default function MovieDetailPage({ params }: { params: Promise<{ id: stri
 
                     <div id="showtimes" className="bg-white/5 p-8 md:p-10 rounded-3xl border border-white/10 shadow-xl">
                         <h2 className="text-xl md:text-2xl font-black mb-8 text-white tracking-tight">Available Showtimes</h2>
-                        <Showtimes movieId={id} />
+                        <Showtimes movieId={id} onShowtimesLoaded={setAvailableShowtimes} />
 
                         <button
-                            onClick={() => document.getElementById("showtimes")?.scrollIntoView({ behavior: "smooth" })}
-                            className="w-full mt-10 py-4 md:py-5 rounded-2xl bg-primary shadow-xl shadow-primary/30 text-white border-none text-base md:text-lg font-black cursor-pointer transition-all active:scale-[0.98] uppercase tracking-wide hover:bg-primary/90"
+                            onClick={() => {
+                                if (availableShowtimes.length > 0) {
+                                    router.push(`/booking/${availableShowtimes[0]._id}`);
+                                }
+                            }}
+                            disabled={availableShowtimes.length === 0}
+                            className={`w-full sm:w-auto mt-10 px-8 md:px-12 py-4 md:py-5 rounded-2xl shadow-xl border-none text-base md:text-lg font-black transition-all uppercase tracking-wide
+                                ${availableShowtimes.length > 0
+                                    ? "bg-primary shadow-primary/30 text-white cursor-pointer hover:bg-primary/90 active:scale-[0.98]"
+                                    : "bg-white/10 text-white/30 cursor-not-allowed"
+                                }`}
                         >
                             Book Tickets Now
                         </button>
