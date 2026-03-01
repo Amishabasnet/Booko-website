@@ -15,7 +15,7 @@ interface BookingProps {
 export default function Booking({ showtimeId, selectedSeats, totalAmount, onBack, onSuccess }: BookingProps) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [paymentMethod, setPaymentMethod] = useState("credit_card");
+    const [paymentMethod, setPaymentMethod] = useState("esewa");
 
     const handleConfirmAndPay = async () => {
         setLoading(true);
@@ -69,10 +69,12 @@ export default function Booking({ showtimeId, selectedSeats, totalAmount, onBack
                         onChange={(e) => setPaymentMethod(e.target.value)}
                         style={selectStyle}
                     >
-                        <option value="credit_card">Credit Card</option>
-                        <option value="debit_card">Debit Card</option>
-                        <option value="paypal">PayPal</option>
-                        <option value="digital_wallet">Digital Wallet</option>
+                        <option value="esewa" style={{ background: "#1a1a1a", color: "white" }}>eSewa</option>
+                        <option value="khalti" style={{ background: "#1a1a1a", color: "white" }}>Khalti</option>
+                        <option value="ime_pay" style={{ background: "#1a1a1a", color: "white" }}>IME Pay</option>
+                        <option value="fonepay" style={{ background: "#1a1a1a", color: "white" }}>Fonepay</option>
+                        <option value="mobile_banking" style={{ background: "#1a1a1a", color: "white" }}>Mobile Banking</option>
+                        <option value="connect_ips" style={{ background: "#1a1a1a", color: "white" }}>Connect IPS</option>
                     </select>
                 </div>
 

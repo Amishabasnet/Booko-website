@@ -14,7 +14,7 @@ interface Movie {
     duration: number;
     language: string;
     releaseDate: string;
-    posterImage?: string;
+    posterImage?: string | File | null;
 }
 
 export default function AdminMovieManagement() {
@@ -33,7 +33,7 @@ export default function AdminMovieManagement() {
         duration: 0,
         language: "",
         releaseDate: "",
-        posterImage: "",
+        posterImage: null as File | string | null,
     });
 
     const [modalOpen, setModalOpen] = useState(false);
@@ -58,6 +58,12 @@ export default function AdminMovieManagement() {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            setFormData(prev => ({ ...prev, posterImage: e.target.files![0] }));
+        }
+    };
+
     const resetForm = () => {
         setFormData({
             title: "",
@@ -66,7 +72,7 @@ export default function AdminMovieManagement() {
             duration: 0,
             language: "",
             releaseDate: "",
-            posterImage: "",
+            posterImage: null,
         });
         setIsEditing(false);
         setCurrentMovieId(null);
@@ -83,7 +89,7 @@ export default function AdminMovieManagement() {
                 duration: movie.duration,
                 language: movie.language,
                 releaseDate: new Date(movie.releaseDate).toISOString().split("T")[0],
-                posterImage: movie.posterImage || "",
+                posterImage: movie.posterImage || null,
             });
         } else {
             resetForm();
@@ -96,18 +102,27 @@ export default function AdminMovieManagement() {
         setError(null);
         setSuccess(null);
 
-        const movieData = {
-            ...formData,
-            genre: formData.genre.split(",").map(g => g.trim()),
-            duration: Number(formData.duration),
-        };
+        const submitData = new FormData();
+        submitData.append("title", formData.title);
+        submitData.append("description", formData.description);
+
+        const genreArray = formData.genre.split(",").map(g => g.trim());
+        genreArray.forEach(g => submitData.append("genre[]", g));
+
+        submitData.append("duration", formData.duration.toString());
+        submitData.append("language", formData.language);
+        submitData.append("releaseDate", formData.releaseDate);
+
+        if (formData.posterImage instanceof File) {
+            submitData.append("posterImage", formData.posterImage);
+        }
 
         try {
             if (isEditing && currentMovieId) {
-                await updateMovie(currentMovieId, movieData);
+                await updateMovie(currentMovieId, submitData);
                 setSuccess("Movie updated successfully!");
             } else {
-                await createMovie(movieData);
+                await createMovie(submitData);
                 setSuccess("Movie created successfully!");
             }
             fetchMovies();
@@ -212,8 +227,11 @@ export default function AdminMovieManagement() {
                                 </div>
                             </div>
                             <div className="grid gap-2">
-                                <label className="text-[10px] uppercase font-bold text-white/40 tracking-widest ml-1">Poster URL</label>
-                                <input name="posterImage" value={formData.posterImage} onChange={handleInputChange} className="bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm focus:border-primary/50 focus:outline-none transition-colors" />
+                                <label className="text-[10px] uppercase font-bold text-white/40 tracking-widest ml-1">{isEditing && typeof formData.posterImage === 'string' ? "Update Poster File" : "Poster FIle"}</label>
+                                <input type="file" name="posterImage" accept="image/*" onChange={handleFileChange} className="bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm focus:border-primary/50 focus:outline-none transition-colors" />
+                                {isEditing && typeof formData.posterImage === 'string' && (
+                                    <div className="text-xs text-white/40 ml-1 mt-1">Current poster: {formData.posterImage.split('/').pop()}</div>
+                                )}
                             </div>
 
                             <div className="flex justify-end gap-4 mt-4 pt-10 border-t border-white/5">

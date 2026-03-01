@@ -30,6 +30,4 @@ export const movieValidation = [
         .withMessage("Release date must be a valid ISO8601 date"),
     body("posterImage")
         .optional()
-        .isString()
-        .withMessage("Poster image must be a string (URL)"),
 ];
