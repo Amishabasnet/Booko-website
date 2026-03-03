@@ -4,6 +4,13 @@ const apiClient = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050/api",
 });
 
+export const getImageUrl = (path: string | undefined) => {
+    if (!path) return "";
+    if (path.startsWith("http")) return path;
+    const base = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050/api").replace("/api", "");
+    return `${base}${path}`;
+};
+
 // Request Interceptor: Attach JWT to every request
 apiClient.interceptors.request.use(
     (config) => {

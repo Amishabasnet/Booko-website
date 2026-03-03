@@ -14,7 +14,6 @@ export const registerSchema = z
     phoneNumber: z.string().min(10, "Phone number required"),
     dob: z.string().min(1, "Date of birth required"),
     gender: z.enum(["male", "female", "other", "prefer_not_to_say"]),
-    role: z.enum(["user", "admin"]),
     password: z.string().min(6, "Minimum 6 characters"),
     confirmPassword: z.string().min(6, "Confirm your password"),
   })

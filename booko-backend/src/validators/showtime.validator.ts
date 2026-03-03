@@ -3,7 +3,7 @@ import { body } from "express-validator";
 export const showtimeValidation = [
     body("movieId").isMongoId().withMessage("Invalid movie ID"),
     body("theaterId").isMongoId().withMessage("Invalid theater ID"),
-    body("screenId").isMongoId().withMessage("Invalid screen ID"),
+    body("screenId").notEmpty().withMessage("Screen selection is required"),
     body("showDate").isISO8601().withMessage("Show date must be a valid ISO8601 date"),
     body("showTime")
         .matches(/^([01]\d|2[0-3]):?([0-5]\d)$/)

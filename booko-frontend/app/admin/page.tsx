@@ -7,6 +7,7 @@ import AdminMovieManagement from "@/app/components/AdminMovieManagement";
 import AdminTheaterShowtimeManagement from "@/app/components/AdminTheaterShowtimeManagement";
 import AdminBookings from "@/app/components/AdminBookings";
 import AdminContactMessages from "@/app/components/AdminContactMessages";
+import AdminUserManagement from "@/app/components/AdminUserManagement";
 
 export default function AdminPage() {
     const router = useRouter();
@@ -59,6 +60,7 @@ export default function AdminPage() {
                 <AdminTheaterShowtimeManagement />
                 <AdminBookings />
                 <AdminContactMessages />
+                <AdminUserManagement />
             </div>
         </main>
     );

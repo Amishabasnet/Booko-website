@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getMovies, createMovie, updateMovie, deleteMovie } from "@/app/services/movie.service";
+import { getImageUrl } from "@/app/utils/apiClient";
 import Loader from "./ui/Loader";
 import ErrorMessage from "./ui/ErrorMessage";
 import ConfirmModal, { useConfirmModal } from "./ui/ConfirmModal";
@@ -38,6 +39,7 @@ export default function AdminMovieManagement() {
     });
 
     const [modalOpen, setModalOpen] = useState(false);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const confirm = useConfirmModal();
 
     useEffect(() => {
@@ -62,7 +64,9 @@ export default function AdminMovieManagement() {
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
-            setFormData(prev => ({ ...prev, posterImage: e.target.files![0] }));
+            const file = e.target.files[0];
+            setFormData(prev => ({ ...prev, posterImage: file }));
+            setPreviewUrl(URL.createObjectURL(file));
         }
     };
 
@@ -78,6 +82,7 @@ export default function AdminMovieManagement() {
         });
         setIsEditing(false);
         setCurrentMovieId(null);
+        setPreviewUrl(null);
     };
 
     const openModal = (movie?: Movie) => {
@@ -93,6 +98,7 @@ export default function AdminMovieManagement() {
                 releaseDate: new Date(movie.releaseDate).toISOString().split("T")[0],
                 posterImage: movie.posterImage || null,
             });
+            setPreviewUrl(getImageUrl(movie.posterImage as string) || null);
         } else {
             resetForm();
         }
@@ -227,12 +233,26 @@ export default function AdminMovieManagement() {
                                     <input type="date" name="releaseDate" value={formData.releaseDate} onChange={handleInputChange} className="bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm focus:border-primary/50 focus:outline-none transition-colors" required />
                                 </div>
                             </div>
-                            <div className="grid gap-2">
+                            <div className="grid gap-4">
                                 <label className="text-[10px] uppercase font-bold text-white/40 tracking-widest ml-1">{isEditing && typeof formData.posterImage === 'string' ? "Update Poster File" : "Poster FIle"}</label>
-                                <input type="file" name="posterImage" accept="image/*" onChange={handleFileChange} className="bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm focus:border-primary/50 focus:outline-none transition-colors" />
-                                {isEditing && typeof formData.posterImage === 'string' && (
-                                    <div className="text-xs text-white/40 ml-1 mt-1">Current poster: {formData.posterImage.split('/').pop()}</div>
-                                )}
+
+                                <div className="flex flex-col md:flex-row gap-6 items-start">
+                                    <div className="w-full md:w-32 aspect-[2/3] bg-white/5 rounded-2xl overflow-hidden border border-white/10 flex-shrink-0">
+                                        {previewUrl ? (
+                                            <img src={previewUrl} alt="Poster Preview" className="w-full h-full object-cover" />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center text-[10px] font-black uppercase text-white/20 text-center p-4">No Preview</div>
+                                        )}
+                                    </div>
+                                    <div className="flex-1 w-full">
+                                        <input type="file" name="posterImage" accept="image/*" onChange={handleFileChange} className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm focus:border-primary/50 focus:outline-none transition-colors file:bg-primary file:border-none file:rounded-lg file:text-white file:text-[10px] file:font-black file:uppercase file:px-4 file:py-2 file:mr-4 file:cursor-pointer hover:file:bg-primary/90" />
+                                        {isEditing && typeof formData.posterImage === 'string' && formData.posterImage !== '' && (
+                                            <div className="text-xs text-white/40 ml-1 mt-2 flex items-center gap-2">
+                                                <span className="text-primary text-base">ℹ️</span> Currently using: {formData.posterImage.split('/').pop()}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
 
                             <div className="flex justify-end gap-4 mt-4 pt-10 border-t border-white/5">

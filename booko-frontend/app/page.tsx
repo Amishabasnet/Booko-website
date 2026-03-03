@@ -128,7 +128,7 @@ export default function HomePage() {
               <img src="/assets/images/predator-badlands.jpg" alt="Predator: Badlands" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
             </div>
             <div className="absolute top-20 -left-4 lg:left-0 w-48 lg:w-56 aspect-[2/3] rounded-2xl overflow-hidden shadow-2xl transform -rotate-6 border border-white/10 z-10 hover:rotate-0 transition-transform duration-500 hover:scale-110 hover:z-50 group">
-              <img src="/assets/images/kabaddi5.jpg" alt="Kabaddi 5" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+              <img src="/assets/images/dune3.jpg" alt="Dune Messiah" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
             </div>
             <div className="absolute bottom-4 right-20 lg:right-32 w-48 lg:w-56 aspect-[2/3] rounded-2xl overflow-hidden shadow-2xl transform rotate-[15deg] border border-white/10 z-30 hover:rotate-0 transition-transform duration-500 hover:scale-110 hover:z-50 group">
               <img src="/assets/images/runningman.jpg" alt="The Running Man" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
@@ -183,7 +183,7 @@ export default function HomePage() {
               <div className="flex justify-end gap-3 mt-2">
                 <button
                   type="button"
-                  onClick={() => { setAdminModalOpen(false); setAdminEmail(""); setAdminPassword(""); setAdminError(""); }}
+                  onClick={() => { setAdminModalOpen(false); setAdminUsername(""); setAdminPassword(""); setAdminError(""); }}
                   className="text-white/50 hover:text-white py-3 px-6 text-sm font-bold transition-colors bg-transparent border-none cursor-pointer"
                 >
                   Cancel

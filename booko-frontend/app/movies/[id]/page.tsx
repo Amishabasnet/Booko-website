@@ -8,6 +8,7 @@ import Link from "next/link";
 import Showtimes from "@/app/components/Showtimes";
 import Loader from "@/app/components/ui/Loader";
 import ErrorMessage from "@/app/components/ui/ErrorMessage";
+import { getImageUrl } from "@/app/utils/apiClient";
 
 interface MovieDetail {
     _id: string;
@@ -63,7 +64,7 @@ export default function MovieDetailPage({ params }: { params: Promise<{ id: stri
                 <div className="lg:sticky lg:top-10 w-full max-w-sm md:max-w-md mx-auto lg:max-w-none">
                     {movie.posterImage ? (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={movie.posterImage} alt={movie.title} className="w-full aspect-[4/5] md:aspect-auto object-cover rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/10" />
+                        <img src={getImageUrl(movie.posterImage)} alt={movie.title} className="w-full aspect-[4/5] md:aspect-auto object-cover rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/10" />
                     ) : (
                         <div className="aspect-[2/3] bg-white/5 rounded-3xl flex items-center justify-center text-white/30 text-lg font-bold border border-white/5">
                             No Poster Available

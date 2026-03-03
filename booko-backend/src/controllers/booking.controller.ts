@@ -30,4 +30,9 @@ export const bookingController = {
         const booking = await bookingService.updateBookingStatus(req.params.id, userId, role, req.body);
         return res.json({ success: true, message: "Booking status updated successfully", booking });
     },
+
+    async delete(req: Request, res: Response) {
+        await bookingService.deleteBooking(req.params.id);
+        return res.json({ success: true, message: "Booking deleted successfully" });
+    },
 };

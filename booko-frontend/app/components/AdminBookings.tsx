@@ -5,12 +5,15 @@ import { getAllBookings, updateBookingStatus } from "@/app/services/booking.serv
 import Loader from "./ui/Loader";
 import ErrorMessage from "./ui/ErrorMessage";
 import axios from "axios";
+import ConfirmDialog from "./ConfirmDialog";
+import { deleteBooking } from "@/app/services/booking.service";
+import { getImageUrl } from "@/app/utils/apiClient";
 
 interface Booking {
     _id: string;
     userId: { name: string, email: string };
     showtimeId: {
-        movieId: { title: string },
+        movieId: { title: string, posterImage: string },
         theaterId: { name: string },
         screenId: { screenName: string },
         showDate: string,
@@ -27,6 +30,8 @@ export default function AdminBookings() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
+    const [deleteId, setDeleteId] = useState<string | null>(null);
+    const [showConfirm, setShowConfirm] = useState(false);
 
     useEffect(() => {
         fetchBookings();
@@ -55,6 +60,27 @@ export default function AdminBookings() {
             fetchBookings();
         } catch (err: any) {
             setError(err.response?.data?.message || "Failed to update booking.");
+        }
+    };
+
+    const handleDeleteClick = (id: string) => {
+        setDeleteId(id);
+        setShowConfirm(true);
+    };
+
+    const handleConfirmDelete = async () => {
+        if (!deleteId) return;
+        setError(null);
+        setSuccess(null);
+        try {
+            await deleteBooking(deleteId);
+            setSuccess("Booking deleted successfully!");
+            fetchBookings();
+        } catch (err: any) {
+            setError(err.response?.data?.message || "Failed to delete booking.");
+        } finally {
+            setShowConfirm(false);
+            setDeleteId(null);
         }
     };
 
@@ -111,10 +137,21 @@ export default function AdminBookings() {
                                         <div className="text-[10px] text-white/40 font-medium uppercase tracking-wider mt-0.5">{b.userId?.email}</div>
                                     </td>
                                     <td className="p-4">
-                                        <div className="text-sm font-semibold text-white/90">{b.showtimeId?.movieId?.title}</div>
-                                        <div className="text-[10px] text-white/40 font-medium mt-1">
-                                            {b.showtimeId?.theaterId?.name} • {typeof b.showtimeId?.screenId === 'string' ? b.showtimeId.screenId : b.showtimeId?.screenId?.screenName}<br />
-                                            {new Date(b.showtimeId?.showDate).toLocaleDateString()} @ {b.showtimeId?.showTime}
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-12 h-16 rounded-lg bg-white/10 overflow-hidden border border-white/10 flex-shrink-0">
+                                                {b.showtimeId?.movieId?.posterImage ? (
+                                                    <img src={getImageUrl(b.showtimeId.movieId.posterImage)} alt={b.showtimeId.movieId.title} className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center text-[8px] font-black uppercase text-white/20 text-center">No img</div>
+                                                )}
+                                            </div>
+                                            <div>
+                                                <div className="text-sm font-semibold text-white/90">{b.showtimeId?.movieId?.title}</div>
+                                                <div className="text-[10px] text-white/40 font-medium mt-1">
+                                                    {b.showtimeId?.theaterId?.name} • {typeof b.showtimeId?.screenId === 'string' ? b.showtimeId.screenId : b.showtimeId?.screenId?.screenName}<br />
+                                                    {new Date(b.showtimeId?.showDate).toLocaleDateString()} @ {b.showtimeId?.showTime}
+                                                </div>
+                                            </div>
                                         </div>
                                     </td>
                                     <td className="p-4 text-xs font-bold text-white/70">{b.selectedSeats.join(", ")}</td>
@@ -137,6 +174,7 @@ export default function AdminBookings() {
                                             {b.bookingStatus !== "cancelled" && (
                                                 <button onClick={() => handleUpdateStatus(b._id, "cancelled", b.paymentStatus)} className="bg-primary/10 hover:bg-primary/20 text-primary py-1.5 px-4 rounded-lg text-xs font-bold border border-primary/20 transition-all active:scale-95">Cancel</button>
                                             )}
+                                            <button onClick={() => handleDeleteClick(b._id)} className="bg-red-500 hover:bg-red-600 text-white py-1.5 px-4 rounded-lg text-xs font-bold transition-all active:scale-95 shadow-lg shadow-red-500/20">Delete</button>
                                         </div>
                                     </td>
                                 </tr>
@@ -145,6 +183,13 @@ export default function AdminBookings() {
                     </table>
                 </div>
             )}
+            <ConfirmDialog
+                open={showConfirm}
+                title="Delete Booking"
+                message="Are you sure you want to delete this booking? This will permanently remove the record and free up the seats if not already cancelled."
+                onConfirm={handleConfirmDelete}
+                onCancel={() => setShowConfirm(false)}
+            />
         </section>
     );
 }

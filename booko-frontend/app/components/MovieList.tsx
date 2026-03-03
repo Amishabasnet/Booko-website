@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import axios from "axios";
 import { getMovies, getMovieShowtimes } from "@/app/services/movie.service";
+import { getImageUrl } from "@/app/utils/apiClient";
 import Loader from "./ui/Loader";
 import ErrorMessage from "./ui/ErrorMessage";
 
@@ -90,7 +91,7 @@ export default function MovieList({ filters }: MovieListProps) {
                         <div className="relative aspect-[2/3] overflow-hidden bg-[#1a1a1a]">
                             {movie.posterImage ? (
                                 // eslint-disable-next-line @next/next/no-img-element
-                                <img src={movie.posterImage} alt={movie.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                                <img src={getImageUrl(movie.posterImage)} alt={movie.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                             ) : (
                                 <div className="w-full h-full flex items-center justify-center text-white/30 text-sm font-semibold">No Poster Available</div>
                             )}
