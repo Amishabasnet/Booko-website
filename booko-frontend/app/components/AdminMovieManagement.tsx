@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { getMovies, createMovie, updateMovie, deleteMovie } from "@/app/services/movie.service";
 import Loader from "./ui/Loader";
 import ErrorMessage from "./ui/ErrorMessage";
+import ConfirmModal, { useConfirmModal } from "./ui/ConfirmModal";
 import axios from "axios";
 
 interface Movie {
@@ -37,6 +38,7 @@ export default function AdminMovieManagement() {
     });
 
     const [modalOpen, setModalOpen] = useState(false);
+    const confirm = useConfirmModal();
 
     useEffect(() => {
         fetchMovies();
@@ -134,19 +136,18 @@ export default function AdminMovieManagement() {
     };
 
     const handleDelete = async (id: string) => {
-        if (!confirm("Are you sure you want to delete this movie?")) return;
-
-        try {
-            await deleteMovie(id);
-            setSuccess("Movie deleted successfully!");
-            fetchMovies();
-        } catch (err) {
-            setError("Failed to delete movie.");
-        }
+        confirm.showConfirm("Are you sure you want to delete this movie?", async () => {
+            try {
+                await deleteMovie(id);
+                setSuccess("Movie deleted successfully!");
+                fetchMovies();
+            } catch (err) {
+                setError("Failed to delete movie.");
+            }
+        });
     };
 
     if (loading) return <Loader message="Managing your cinematic library..." />;
-    if (error) return <ErrorMessage message={error} onRetry={fetchMovies} />;
 
     return (
         <section className="mt-10 bg-white/5 rounded-3xl p-6 md:p-8 border border-white/5 shadow-inner">
@@ -244,6 +245,8 @@ export default function AdminMovieManagement() {
                     </div>
                 </div>
             )}
+
+            <ConfirmModal open={confirm.isOpen} message={confirm.message} onConfirm={confirm.handleConfirm} onCancel={confirm.handleCancel} />
         </section>
     );
 }

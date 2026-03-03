@@ -7,6 +7,7 @@ import ErrorMessage from "./ui/ErrorMessage";
 import { getScreensByTheater, createScreen, updateScreen, deleteScreen } from "@/app/services/screen.service";
 import { getShowtimes, createShowtime, updateShowtime, deleteShowtime } from "@/app/services/showtime.service";
 import { getMovies } from "@/app/services/movie.service";
+import ConfirmModal, { useConfirmModal } from "./ui/ConfirmModal";
 import axios from "axios";
 
 interface Theater {
@@ -58,6 +59,7 @@ export default function AdminTheaterShowtimeManagement() {
     const [isEditing, setIsEditing] = useState(false);
     const [currentId, setCurrentId] = useState<string | null>(null);
     const [selectedTheaterId, setSelectedTheaterId] = useState<string | null>(null);
+    const confirmDlg = useConfirmModal();
 
     const [theaterForm, setTheaterForm] = useState({ name: "", location: "", totalScreens: 1 });
     const [screenForm, setScreenForm] = useState({ screenName: "", totalSeats: 0 });
@@ -112,14 +114,15 @@ export default function AdminTheaterShowtimeManagement() {
     };
 
     const handleDeleteTheater = async (id: string) => {
-        if (!confirm("Delete theater and its screens?")) return;
-        try {
-            await deleteTheater(id);
-            setTheaters(prev => prev.filter(t => t._id !== id));
-            setSuccess("Theater deleted!");
-        } catch (err) {
-            setError("Failed to delete.");
-        }
+        confirmDlg.showConfirm("Delete this theater and all its screens?", async () => {
+            try {
+                await deleteTheater(id);
+                setTheaters(prev => prev.filter(t => t._id !== id));
+                setSuccess("Theater deleted!");
+            } catch (err) {
+                setError("Failed to delete.");
+            }
+        });
     };
 
     // --- Screen Handlers ---
@@ -189,18 +192,18 @@ export default function AdminTheaterShowtimeManagement() {
     };
 
     const handleDeleteShowtime = async (id: string) => {
-        if (!confirm("Are you sure?")) return;
-        try {
-            await deleteShowtime(id);
-            setShowtimes(prev => prev.filter(s => s._id !== id));
-            setSuccess("Showtime deleted!");
-        } catch (err) {
-            setError("Delete failed.");
-        }
+        confirmDlg.showConfirm("Are you sure you want to delete this showtime?", async () => {
+            try {
+                await deleteShowtime(id);
+                setShowtimes(prev => prev.filter(s => s._id !== id));
+                setSuccess("Showtime deleted!");
+            } catch (err) {
+                setError("Delete failed.");
+            }
+        });
     };
 
     if (loading) return <Loader message="Synchronizing theater and showtime data..." />;
-    if (error) return <ErrorMessage message={error} onRetry={fetchInitialData} />;
 
     return (
         <section className="mt-10">
@@ -290,7 +293,7 @@ export default function AdminTheaterShowtimeManagement() {
                                     <tr key={s._id} className="hover:bg-white/[0.02] transition-colors">
                                         <td className="p-4 text-sm font-semibold">{s.movieId?.title}</td>
                                         <td className="p-4 text-xs text-white/60">{s.theaterId?.name}</td>
-                                        <td className="p-4 text-xs text-white/60">{s.screenId?.screenName}</td>
+                                        <td className="p-4 text-xs text-white/60">{typeof s.screenId === 'string' ? s.screenId : s.screenId?.screenName}</td>
                                         <td className="p-4 text-xs text-white/60">{new Date(s.showDate).toLocaleDateString()} {s.showTime}</td>
                                         <td className="p-4 text-xs text-white/60">NPR {s.ticketPrice}</td>
                                         <td className="p-4 text-right">
@@ -371,53 +374,57 @@ export default function AdminTheaterShowtimeManagement() {
                         <h3 className="text-2xl font-black mb-8 tracking-tight">Schedule Showtime</h3>
                         <form onSubmit={handleShowtimeSubmit} className="flex flex-col gap-5">
                             <div className="flex flex-col gap-2">
-                                <label className="text-[10px] font-black text-white/40 uppercase tracking-widest pl-1">Select Movie</label>
-                                <select value={showtimeForm.movieId} onChange={e => setShowtimeForm({ ...showtimeForm, movieId: e.target.value })} className="bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm focus:border-primary/50 focus:outline-none transition-colors appearance-none" required>
+                                <label className="text-[10px] sm:text-xs font-black text-white/40 uppercase tracking-widest pl-1">Select Movie</label>
+                                <select value={showtimeForm.movieId} onChange={e => setShowtimeForm({ ...showtimeForm, movieId: e.target.value })} className="bg-white/5 border border-white/10 rounded-2xl p-3 sm:p-4 text-white text-sm focus:border-primary/50 focus:outline-none transition-colors appearance-none" required>
                                     <option value="" style={{ background: "#1a1a1a", color: "white" }}>-- Select a Movie --</option>
                                     {movies.map(m => <option key={m._id} value={m._id} style={{ background: "#1a1a1a", color: "white" }}>{m.title}</option>)}
                                 </select>
                             </div>
                             <div className="flex flex-col gap-2">
-                                <label className="text-[10px] font-black text-white/40 uppercase tracking-widest pl-1">Select Theater</label>
+                                <label className="text-[10px] sm:text-xs font-black text-white/40 uppercase tracking-widest pl-1">Select Theater</label>
                                 <select value={showtimeForm.theaterId} onChange={async (e) => {
                                     const tid = e.target.value;
                                     setShowtimeForm({ ...showtimeForm, theaterId: tid, screenId: "" });
                                     const res = await getScreensByTheater(tid);
                                     setScreens(res.data.screens);
-                                }} className="bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm focus:border-primary/50 focus:outline-none transition-colors appearance-none" required>
+                                }} className="bg-white/5 border border-white/10 rounded-2xl p-3 sm:p-4 text-white text-sm focus:border-primary/50 focus:outline-none transition-colors appearance-none" required>
                                     <option value="" style={{ background: "#1a1a1a", color: "white" }}>-- Select a Theater --</option>
                                     {theaters.map(t => <option key={t._id} value={t._id} style={{ background: "#1a1a1a", color: "white" }}>{t.name}</option>)}
                                 </select>
                             </div>
                             <div className="flex flex-col gap-2">
-                                <label className="text-[10px] font-black text-white/40 uppercase tracking-widest pl-1">Select Screen</label>
-                                <select value={showtimeForm.screenId} onChange={e => setShowtimeForm({ ...showtimeForm, screenId: e.target.value })} className="bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm focus:border-primary/50 focus:outline-none transition-colors appearance-none disabled:opacity-30 disabled:cursor-not-allowed" required disabled={!showtimeForm.theaterId}>
+                                <label className="text-[10px] sm:text-xs font-black text-white/40 uppercase tracking-widest pl-1">Select Screen</label>
+                                <select value={showtimeForm.screenId} onChange={e => setShowtimeForm({ ...showtimeForm, screenId: e.target.value })} className="bg-white/5 border border-white/10 rounded-2xl p-3 sm:p-4 text-white text-sm focus:border-primary/50 focus:outline-none transition-colors appearance-none" required>
                                     <option value="" style={{ background: "#1a1a1a", color: "white" }}>-- Select a Screen --</option>
-                                    {screens.map(sc => <option key={sc._id} value={sc._id} style={{ background: "#1a1a1a", color: "white" }}>{sc.screenName} ({sc.totalSeats} seats)</option>)}
+                                    <option value="AUD1" style={{ background: "#1a1a1a", color: "white" }}>AUD1</option>
+                                    <option value="AUD2" style={{ background: "#1a1a1a", color: "white" }}>AUD2</option>
+                                    <option value="AUD3" style={{ background: "#1a1a1a", color: "white" }}>AUD3</option>
                                 </select>
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="flex flex-col gap-2">
-                                    <label className="text-[10px] font-black text-white/40 uppercase tracking-widest pl-1">Show Date</label>
-                                    <input type="date" value={showtimeForm.showDate} onChange={e => setShowtimeForm({ ...showtimeForm, showDate: e.target.value })} className="bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm focus:border-primary/50 focus:outline-none transition-colors" required />
+                                    <label className="text-[10px] sm:text-xs font-black text-white/40 uppercase tracking-widest pl-1">Show Date</label>
+                                    <input type="date" value={showtimeForm.showDate} onChange={e => setShowtimeForm({ ...showtimeForm, showDate: e.target.value })} className="bg-white/5 border border-white/10 rounded-2xl p-3 sm:p-4 text-white text-sm focus:border-primary/50 focus:outline-none transition-colors" required />
                                 </div>
                                 <div className="flex flex-col gap-2">
-                                    <label className="text-[10px] font-black text-white/40 uppercase tracking-widest pl-1">Show Time</label>
-                                    <input type="time" value={showtimeForm.showTime} onChange={e => setShowtimeForm({ ...showtimeForm, showTime: e.target.value })} className="bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm focus:border-primary/50 focus:outline-none transition-colors" required />
+                                    <label className="text-[10px] sm:text-xs font-black text-white/40 uppercase tracking-widest pl-1">Show Time</label>
+                                    <input type="time" value={showtimeForm.showTime} onChange={e => setShowtimeForm({ ...showtimeForm, showTime: e.target.value })} className="bg-white/5 border border-white/10 rounded-2xl p-3 sm:p-4 text-white text-sm focus:border-primary/50 focus:outline-none transition-colors" required />
                                 </div>
                             </div>
                             <div className="flex flex-col gap-2">
-                                <label className="text-[10px] font-black text-white/40 uppercase tracking-widest pl-1">Ticket Price (NPR)</label>
-                                <input type="number" placeholder="e.g. 500" value={showtimeForm.ticketPrice || ""} onChange={e => setShowtimeForm({ ...showtimeForm, ticketPrice: parseFloat(e.target.value) || 0 })} className="bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm focus:border-primary/50 focus:outline-none transition-colors" required />
+                                <label className="text-[10px] sm:text-xs font-black text-white/40 uppercase tracking-widest pl-1">Ticket Price (NPR)</label>
+                                <input type="number" placeholder="e.g. 500" value={showtimeForm.ticketPrice || ""} onChange={e => setShowtimeForm({ ...showtimeForm, ticketPrice: parseFloat(e.target.value) || 0 })} className="bg-white/5 border border-white/10 rounded-2xl p-3 sm:p-4 text-white text-sm focus:border-primary/50 focus:outline-none transition-colors" required />
                             </div>
-                            <div className="flex justify-end gap-3 mt-4">
-                                <button type="button" onClick={() => setShowtimeModalOpen(false)} className="text-white/50 hover:text-white py-3 px-6 text-sm font-bold transition-colors">Cancel</button>
-                                <button type="submit" className="bg-primary hover:bg-primary/90 text-white py-3 px-8 rounded-xl font-bold text-sm shadow-xl shadow-primary/20 transition-all active:scale-95 uppercase tracking-wide">Schedule</button>
+                            <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 mt-4">
+                                <button type="button" onClick={() => setShowtimeModalOpen(false)} className="w-full sm:w-auto text-white/50 hover:text-white py-3 px-6 text-sm font-bold transition-colors bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl cursor-pointer">Cancel</button>
+                                <button type="submit" className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-white py-3 px-8 rounded-xl font-bold text-sm shadow-xl shadow-primary/20 transition-all active:scale-95 uppercase tracking-wide border-none cursor-pointer">Schedule</button>
                             </div>
                         </form>
                     </div>
                 </div>
             )}
+
+            <ConfirmModal open={confirmDlg.isOpen} message={confirmDlg.message} onConfirm={confirmDlg.handleConfirm} onCancel={confirmDlg.handleCancel} />
         </section>
     );
 }

@@ -34,11 +34,12 @@ export default function AdminBookings() {
 
     const fetchBookings = async () => {
         setLoading(true);
+        setError(null);
         try {
             const res = await getAllBookings();
-            setBookings(res.data.bookings);
+            setBookings(res.data.bookings || []);
         } catch (err) {
-            setError("Failed to fetch bookings.");
+            setBookings([]);
         } finally {
             setLoading(false);
         }
@@ -48,9 +49,6 @@ export default function AdminBookings() {
         setError(null);
         setSuccess(null);
         try {
-            // Reusing updatePaymentStatus but the backend updateBookingStatus accepts both
-            // Let's check the service name in backend... it was updateBookingStatus(id, userId, role, data)
-            // And route PUT /:id/status 
             await updateBookingStatus(id, bookingStatus, paymentStatus);
 
             setSuccess("Booking updated successfully!");
@@ -74,7 +72,6 @@ export default function AdminBookings() {
     };
 
     if (loading) return <Loader message="Accessing booking records..." />;
-    if (error && bookings.length === 0) return <ErrorMessage message={error} onRetry={fetchBookings} />;
 
     return (
         <section className="mt-10 bg-white/5 rounded-3xl p-6 md:p-8 border border-white/5 shadow-inner">
@@ -86,60 +83,68 @@ export default function AdminBookings() {
             {error && <div className="bg-red-500/10 text-red-500 p-4 rounded-xl mb-6 text-sm border border-red-500/10">{error}</div>}
             {success && <div className="bg-green-500/10 text-green-500 p-4 rounded-xl mb-6 text-sm border border-green-500/10">{success}</div>}
 
-            <div className="overflow-x-auto -mx-6 md:mx-0">
-                <table className="w-full border-collapse text-left min-w-[900px]">
-                    <thead>
-                        <tr className="border-b border-white/10">
-                            <th className="p-4 text-white/40 font-bold text-xs uppercase tracking-widest">Customer</th>
-                            <th className="p-4 text-white/40 font-bold text-xs uppercase tracking-widest">Movie & Show</th>
-                            <th className="p-4 text-white/40 font-bold text-xs uppercase tracking-widest">Seats</th>
-                            <th className="p-4 text-white/40 font-bold text-xs uppercase tracking-widest">Total</th>
-                            <th className="p-4 text-white/40 font-bold text-xs uppercase tracking-widest text-center">Booking</th>
-                            <th className="p-4 text-white/40 font-bold text-xs uppercase tracking-widest text-center">Payment</th>
-                            <th className="p-4 text-white/40 font-bold text-xs uppercase tracking-widest text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-white/5">
-                        {bookings.map(b => (
-                            <tr key={b._id} className="hover:bg-white/[0.02] transition-colors group">
-                                <td className="p-4">
-                                    <div className="text-sm font-semibold">{b.userId?.name}</div>
-                                    <div className="text-[10px] text-white/40 font-medium uppercase tracking-wider mt-0.5">{b.userId?.email}</div>
-                                </td>
-                                <td className="p-4">
-                                    <div className="text-sm font-semibold text-white/90">{b.showtimeId?.movieId?.title}</div>
-                                    <div className="text-[10px] text-white/40 font-medium mt-1">
-                                        {b.showtimeId?.theaterId?.name} • {b.showtimeId?.screenId?.screenName}<br />
-                                        {new Date(b.showtimeId?.showDate).toLocaleDateString()} @ {b.showtimeId?.showTime}
-                                    </div>
-                                </td>
-                                <td className="p-4 text-xs font-bold text-white/70">{b.selectedSeats.join(", ")}</td>
-                                <td className="p-4 text-sm font-black text-primary">NPR {b.totalAmount}</td>
-                                <td className="p-4 text-center">
-                                    <span className={`inline-block py-1 pr-3 pl-3.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${getStatusClasses(b.bookingStatus)}`}>
-                                        {b.bookingStatus}
-                                    </span>
-                                </td>
-                                <td className="p-4 text-center">
-                                    <span className={`inline-block py-1 pr-3 pl-3.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${getStatusClasses(b.paymentStatus)}`}>
-                                        {b.paymentStatus}
-                                    </span>
-                                </td>
-                                <td className="p-4 text-right">
-                                    <div className="flex justify-end gap-2 group-hover:translate-x-0 transition-transform">
-                                        {b.bookingStatus !== "confirmed" && (
-                                            <button onClick={() => handleUpdateStatus(b._id, "confirmed", "completed")} className="bg-green-500 hover:bg-green-600 text-white py-1.5 px-4 rounded-lg text-xs font-bold transition-all active:scale-95 shadow-lg shadow-green-500/20">Approve</button>
-                                        )}
-                                        {b.bookingStatus !== "cancelled" && (
-                                            <button onClick={() => handleUpdateStatus(b._id, "cancelled", b.paymentStatus)} className="bg-primary/10 hover:bg-primary/20 text-primary py-1.5 px-4 rounded-lg text-xs font-bold border border-primary/20 transition-all active:scale-95">Cancel</button>
-                                        )}
-                                    </div>
-                                </td>
+            {bookings.length === 0 ? (
+                <div className="text-center py-16">
+                    <div className="text-5xl mb-4">🎟️</div>
+                    <h3 className="text-lg font-bold text-white/50 mb-2">No Bookings Found</h3>
+                    <p className="text-white/30 text-sm">When users book movies, their booking details will appear here.</p>
+                </div>
+            ) : (
+                <div className="overflow-x-auto -mx-6 md:mx-0">
+                    <table className="w-full border-collapse text-left min-w-[900px]">
+                        <thead>
+                            <tr className="border-b border-white/10">
+                                <th className="p-4 text-white/40 font-bold text-xs uppercase tracking-widest">Customer</th>
+                                <th className="p-4 text-white/40 font-bold text-xs uppercase tracking-widest">Movie & Show</th>
+                                <th className="p-4 text-white/40 font-bold text-xs uppercase tracking-widest">Seats</th>
+                                <th className="p-4 text-white/40 font-bold text-xs uppercase tracking-widest">Total</th>
+                                <th className="p-4 text-white/40 font-bold text-xs uppercase tracking-widest text-center">Booking</th>
+                                <th className="p-4 text-white/40 font-bold text-xs uppercase tracking-widest text-center">Payment</th>
+                                <th className="p-4 text-white/40 font-bold text-xs uppercase tracking-widest text-right">Actions</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
+                        <tbody className="divide-y divide-white/5">
+                            {bookings.map(b => (
+                                <tr key={b._id} className="hover:bg-white/[0.02] transition-colors group">
+                                    <td className="p-4">
+                                        <div className="text-sm font-semibold">{b.userId?.name}</div>
+                                        <div className="text-[10px] text-white/40 font-medium uppercase tracking-wider mt-0.5">{b.userId?.email}</div>
+                                    </td>
+                                    <td className="p-4">
+                                        <div className="text-sm font-semibold text-white/90">{b.showtimeId?.movieId?.title}</div>
+                                        <div className="text-[10px] text-white/40 font-medium mt-1">
+                                            {b.showtimeId?.theaterId?.name} • {typeof b.showtimeId?.screenId === 'string' ? b.showtimeId.screenId : b.showtimeId?.screenId?.screenName}<br />
+                                            {new Date(b.showtimeId?.showDate).toLocaleDateString()} @ {b.showtimeId?.showTime}
+                                        </div>
+                                    </td>
+                                    <td className="p-4 text-xs font-bold text-white/70">{b.selectedSeats.join(", ")}</td>
+                                    <td className="p-4 text-sm font-black text-primary">NPR {b.totalAmount}</td>
+                                    <td className="p-4 text-center">
+                                        <span className={`inline-block py-1 pr-3 pl-3.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${getStatusClasses(b.bookingStatus)}`}>
+                                            {b.bookingStatus}
+                                        </span>
+                                    </td>
+                                    <td className="p-4 text-center">
+                                        <span className={`inline-block py-1 pr-3 pl-3.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${getStatusClasses(b.paymentStatus)}`}>
+                                            {b.paymentStatus}
+                                        </span>
+                                    </td>
+                                    <td className="p-4 text-right">
+                                        <div className="flex justify-end gap-2 group-hover:translate-x-0 transition-transform">
+                                            {b.bookingStatus !== "confirmed" && (
+                                                <button onClick={() => handleUpdateStatus(b._id, "confirmed", "completed")} className="bg-green-500 hover:bg-green-600 text-white py-1.5 px-4 rounded-lg text-xs font-bold transition-all active:scale-95 shadow-lg shadow-green-500/20">Approve</button>
+                                            )}
+                                            {b.bookingStatus !== "cancelled" && (
+                                                <button onClick={() => handleUpdateStatus(b._id, "cancelled", b.paymentStatus)} className="bg-primary/10 hover:bg-primary/20 text-primary py-1.5 px-4 rounded-lg text-xs font-bold border border-primary/20 transition-all active:scale-95">Cancel</button>
+                                            )}
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
         </section>
     );
 }
