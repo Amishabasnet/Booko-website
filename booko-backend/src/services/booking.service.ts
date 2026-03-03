@@ -3,6 +3,14 @@ import { ShowtimeModel } from "../models/showtime.model";
 import { showtimeService } from "./showtime.service";
 import { ApiError } from "../errors/ApiErrors";
 
+async function enrichBooking(booking: any) {
+    const bObj = booking.toObject ? booking.toObject() : booking;
+    if (bObj.showtimeId && typeof bObj.showtimeId === "object") {
+        bObj.showtimeId.screenId = await showtimeService.resolveScreenDetails(bObj.showtimeId.screenId);
+    }
+    return bObj;
+}
+
 export const bookingService = {
     async createBooking(userId: string, data: any) {
         const { showtimeId, selectedSeats } = data;
@@ -11,7 +19,6 @@ export const bookingService = {
         const showtime = await showtimeService.getShowtimeById(showtimeId);
 
         // 2. Atomic update: Add seats to bookedSeats ONLY IF none of them are already booked
-        // We use $nin to ensure none of the selectedSeats are currently in bookedSeats
         const updatedShowtime = await ShowtimeModel.findOneAndUpdate(
             {
                 _id: showtimeId,
@@ -36,23 +43,25 @@ export const bookingService = {
             showtimeId,
             selectedSeats,
             totalAmount,
-            bookingStatus: "confirmed", // Automatically confirm for now, payment logic would go here
+            bookingStatus: "confirmed",
             paymentStatus: "pending",
         });
     },
 
     async getUserBookings(userId: string) {
-        return await bookingRepository.findByUserId(userId);
+        const bookings = await bookingRepository.findByUserId(userId);
+        return await Promise.all(bookings.map(enrichBooking));
     },
 
     async getAllBookings() {
-        return await bookingRepository.findAll();
+        const bookings = await bookingRepository.findAll();
+        return await Promise.all(bookings.map(enrichBooking));
     },
 
     async getBookingById(id: string) {
         const booking = await bookingRepository.findById(id);
         if (!booking) throw new ApiError(404, "Booking not found");
-        return booking;
+        return await enrichBooking(booking);
     },
 
     async updateBookingStatus(id: string, userId: string, role: string, data: any) {
@@ -68,11 +77,26 @@ export const bookingService = {
 
         // If cancelling, we should free up the seats
         if (bookingStatus === "cancelled" && booking.bookingStatus !== "cancelled") {
-            await ShowtimeModel.findByIdAndUpdate(booking.showtimeId, {
+            const showtimeId = booking.showtimeId && booking.showtimeId._id ? booking.showtimeId._id : booking.showtimeId;
+            await ShowtimeModel.findByIdAndUpdate(showtimeId, {
                 $pull: { bookedSeats: { $in: booking.selectedSeats } }
             });
         }
 
         return await bookingRepository.updateStatus(id, bookingStatus, paymentStatus);
+    },
+
+    async deleteBooking(id: string) {
+        const booking = await this.getBookingById(id);
+
+        // If not already cancelled, free up the seats
+        if (booking.bookingStatus !== "cancelled") {
+            const showtimeId = booking.showtimeId && booking.showtimeId._id ? booking.showtimeId._id : booking.showtimeId;
+            await ShowtimeModel.findByIdAndUpdate(showtimeId, {
+                $pull: { bookedSeats: { $in: booking.selectedSeats } }
+            });
+        }
+
+        return await bookingRepository.deleteById(id);
     }
 };

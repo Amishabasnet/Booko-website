@@ -17,5 +17,6 @@ router.put("/:id/status", updateBookingStatusValidation, validateRequest, bookin
 
 // Admin routes
 router.get("/", authorizeRoles(["admin"]), bookingController.getAll);
+router.delete("/:id", authorizeRoles(["admin"]), bookingController.delete);
 
 export default router;

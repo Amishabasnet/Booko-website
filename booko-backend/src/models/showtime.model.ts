@@ -4,7 +4,7 @@ const ShowtimeSchema = new Schema(
     {
         movieId: { type: Schema.Types.ObjectId, ref: "Movie", required: true },
         theaterId: { type: Schema.Types.ObjectId, ref: "Theater", required: true },
-        screenId: { type: Schema.Types.ObjectId, ref: "Screen", required: true },
+        screenId: { type: String, required: true }, // Can be Screen ObjectId or a custom label like "AUD1"
         showDate: { type: Date, required: true },
         showTime: { type: String, required: true }, // Format HH:mm
         ticketPrice: { type: Number, required: true },

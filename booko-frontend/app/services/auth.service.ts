@@ -8,7 +8,7 @@ export const registerUser = (data: {
   phoneNumber: string;
   dob: string;
   gender: string;
-  role: string;
+  role?: string;
   password: string;
 }) => apiClient.post(`${AUTH_URL}/register`, data);
 

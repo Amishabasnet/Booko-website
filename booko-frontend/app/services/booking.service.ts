@@ -21,6 +21,9 @@ export const updatePaymentStatus = (bookingId: string, status: string) =>
 export const getAllBookings = () =>
     apiClient.get("/bookings");
 
+export const deleteBooking = (id: string) =>
+    apiClient.delete(`/bookings/${id}`);
+
 export const initiatePayment = (bookingId: string, paymentMethod: string) => {
     // Dummy function for now to fix build errors
     return Promise.resolve({ data: { success: true, bookingId, paymentMethod } });

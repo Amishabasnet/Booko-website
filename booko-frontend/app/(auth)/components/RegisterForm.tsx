@@ -21,7 +21,7 @@ export default function RegisterForm() {
   } = useForm<RegisterSchema>({
     resolver: zodResolver(registerSchema),
     mode: "onTouched",
-    defaultValues: { name: "", email: "", phoneNumber: "", dob: "", gender: "prefer_not_to_say", role: "user", password: "", confirmPassword: "" },
+    defaultValues: { name: "", email: "", phoneNumber: "", dob: "", gender: "prefer_not_to_say", password: "", confirmPassword: "" },
   });
 
   const onSubmit = async (values: RegisterSchema) => {
@@ -35,7 +35,6 @@ export default function RegisterForm() {
         phoneNumber: values.phoneNumber,
         dob: values.dob,
         gender: values.gender,
-        role: values.role,
         password: values.password,
       });
 
@@ -96,14 +95,6 @@ export default function RegisterForm() {
         <option value="prefer_not_to_say">Prefer not to say</option>
       </SelectField>
 
-      <SelectField
-        label="Account Role"
-        error={errors.role?.message}
-        {...register("role")}
-      >
-        <option value="user">User</option>
-        <option value="admin">Admin</option>
-      </SelectField>
 
       <Field
         label="Password"

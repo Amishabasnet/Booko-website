@@ -6,6 +6,7 @@ import { getProfile, updateProfile } from "@/app/services/auth.service";
 import { getUserBookings } from "@/app/services/booking.service";
 import ProtectedRoute from "@/app/components/ProtectedRoute";
 import { useAuth } from "@/app/context/AuthContext";
+import Link from "next/link";
 
 interface UserProfile {
     id: string;
@@ -140,12 +141,21 @@ export default function ProfilePage() {
                         User Profile <span className="text-primary">.</span>
                     </h1>
                     {profile && !isEditing && (
-                        <button
-                            onClick={() => setIsEditing(true)}
-                            className="bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-2xl font-bold text-sm transition-all active:scale-[0.98]"
-                        >
-                            Edit Profile
-                        </button>
+                        <div className="flex gap-4">
+                            <Link
+                                href="/"
+                                className="group flex items-center gap-2 text-white/50 hover:text-white transition-all font-bold text-sm"
+                            >
+                                <span className="group-hover:-translate-x-1 transition-transform">←</span>
+                                Back to Home
+                            </Link>
+                            <button
+                                onClick={() => setIsEditing(true)}
+                                className="bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-2xl font-bold text-sm transition-all active:scale-[0.98]"
+                            >
+                                Edit Profile
+                            </button>
+                        </div>
                     )}
                 </header>
 
