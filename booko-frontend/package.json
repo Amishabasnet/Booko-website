@@ -8,18 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test": "jest"
-  }
-    "dev": "next dev",
-  "build": "next build",
-  "start": "next start",
-  "lint": "eslint",
-  "test": "jest"
-}
-    "dev": "next dev",
-"build": "next build",
-"start": "next start",
-"lint": "eslint"
-},
+  },
 "dependencies": {
 "@hookform/resolvers": "^5.2.2",
 "axios": "^1.13.5",

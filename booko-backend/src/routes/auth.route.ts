@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { authController } from "../controllers/authController";
+import { authController } from "../controllers/auth.controller";
 import { registerValidation, loginValidation } from "../validators/auth.validator";
 import { validateRequest } from "../middlewares/express-validator.middleware";
 import { requireAuth, authorizeRoles } from "../middlewares/auth.middleware";
