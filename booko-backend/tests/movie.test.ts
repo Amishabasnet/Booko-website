@@ -20,17 +20,17 @@ async function runMovieTests() {
     };
 
     // 0. Setup Users and get Tokens
-    console.log("\n0️⃣ Setting up admin and user accounts...");
+    console.log("\n Setting up admin and user accounts...");
     await fetch(`${AUTH_URL}/register`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(adminUser) });
     await fetch(`${AUTH_URL}/register`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(regularUser) });
 
     const adminToken = await fetch(`${AUTH_URL}/login`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: adminUser.email, password: adminUser.password }) }).then(res => res.json()).then(d => d.token);
     const userToken = await fetch(`${AUTH_URL}/login`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: regularUser.email, password: regularUser.password }) }).then(res => res.json()).then(d => d.token);
 
-    let movieID: string;
+    let movieID: string = "";
 
     // 1. POST / (Admin)
-    console.log("\n1️⃣ Testing Create Movie (Admin Only)...");
+    console.log("\n Testing Create Movie (Admin Only)...");
     const movieData = {
         title: "Inception",
         description: "A thief who steals corporate secrets through the use of dream-sharing technology.",
@@ -50,28 +50,28 @@ async function runMovieTests() {
         const data = await res.json();
         console.log("Status:", res.status);
         if (res.status === 201 && data.success) {
-            console.log("✅ Success: Movie created.");
+            console.log(" Success: Movie created.");
             movieID = data.movie._id;
         } else {
-            console.error("❌ Failure: Admin could not create movie.");
+            console.error(" Failure: Admin could not create movie.");
         }
-    } catch (err: any) { console.error("❌ Error:", err.message); }
+    } catch (err: any) { console.error(" Error:", err.message); }
 
     // 2. GET / (Public)
-    console.log("\n2️⃣ Testing GetAll Movies (Public)...");
+    console.log("\n Testing GetAll Movies (Public)...");
     try {
         const res = await fetch(`${BASE_URL}/`);
         const data = await res.json();
         console.log("Status:", res.status);
         if (res.status === 200 && data.success && Array.isArray(data.movies)) {
-            console.log("✅ Success: Movies retrieved publically.");
+            console.log(" Success: Movies retrieved publically.");
         } else {
-            console.error("❌ Failure: Public could not fetch movies.");
+            console.error(" Failure: Public could not fetch movies.");
         }
-    } catch (err: any) { console.error("❌ Error:", err.message); }
+    } catch (err: any) { console.error(" Error:", err.message); }
 
     // 3. PUT /:id (Admin)
-    console.log("\n3️⃣ Testing Update Movie (Admin Only)...");
+    console.log("\n Testing Update Movie (Admin Only)...");
     try {
         const res = await fetch(`${BASE_URL}/${movieID}`, {
             method: "PUT",
@@ -81,14 +81,14 @@ async function runMovieTests() {
         const data = await res.json();
         console.log("Status:", res.status);
         if (res.status === 200 && data.success && data.movie.title === "Inception Updated") {
-            console.log("✅ Success: Movie updated.");
+            console.log(" Success: Movie updated.");
         } else {
-            console.error("❌ Failure: Admin could not update movie.");
+            console.error(" Failure: Admin could not update movie.");
         }
-    } catch (err: any) { console.error("❌ Error:", err.message); }
+    } catch (err: any) { console.error(" Error:", err.message); }
 
     // 4. RBAC Check: POST / (User should be Forbidden)
-    console.log("\n4️⃣ Testing Create Movie (Regular User - Forbidden)...");
+    console.log("\n Testing Create Movie (Regular User - Forbidden)...");
     try {
         const res = await fetch(`${BASE_URL}/`, {
             method: "POST",
@@ -97,14 +97,14 @@ async function runMovieTests() {
         });
         console.log("Status:", res.status);
         if (res.status === 403) {
-            console.log("✅ Success: Regular user forbidden correctly (403).");
+            console.log(" Success: Regular user forbidden correctly (403).");
         } else {
-            console.error("❌ Failure: Expected 403 for regular user.");
+            console.error(" Failure: Expected 403 for regular user.");
         }
-    } catch (err: any) { console.error("❌ Error:", err.message); }
+    } catch (err: any) { console.error(" Error:", err.message); }
 
     // 5. DELETE /:id (Admin)
-    console.log("\n5️⃣ Testing Delete Movie (Admin Only)...");
+    console.log("\n Testing Delete Movie (Admin Only)...");
     try {
         const res = await fetch(`${BASE_URL}/${movieID}`, {
             method: "DELETE",
@@ -112,11 +112,11 @@ async function runMovieTests() {
         });
         console.log("Status:", res.status);
         if (res.status === 200) {
-            console.log("✅ Success: Movie deleted.");
+            console.log(" Success: Movie deleted.");
         } else {
-            console.error("❌ Failure: Admin could not delete movie.");
+            console.error(" Failure: Admin could not delete movie.");
         }
-    } catch (err: any) { console.error("❌ Error:", err.message); }
+    } catch (err: any) { console.error(" Error:", err.message); }
 }
 
 runMovieTests();

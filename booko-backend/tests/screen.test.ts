@@ -5,7 +5,7 @@ const THEATER_URL = "http://127.0.0.1:5050/api/theaters";
 const AUTH_URL = "http://127.0.0.1:5050/api/auth";
 
 async function runScreenTests() {
-    console.log("🚀 Starting Screen API Tests with Axios...");
+    console.log("Starting Screen API Tests with Axios...");
 
     const adminUser = {
         name: "Screen Admin Axios",
@@ -16,7 +16,7 @@ async function runScreenTests() {
 
     try {
         // 0. Setup Admin and Theater
-        console.log("\n0️⃣ Setting up admin and theater...");
+        console.log("\n Setting up admin and theater...");
         await axios.post(`${AUTH_URL}/register`, adminUser);
         const loginRes = await axios.post(`${AUTH_URL}/login`, { email: adminUser.email, password: adminUser.password });
         const adminToken = loginRes.data.token;
@@ -31,7 +31,7 @@ async function runScreenTests() {
         let screenID: string = "";
 
         // 1. POST / (Admin)
-        console.log("\n1️⃣ Testing Create Screen (Admin Only)...");
+        console.log("\n Testing Create Screen (Admin Only)...");
         const screenData = {
             theaterId,
             screenName: "Screen 1",
@@ -47,40 +47,40 @@ async function runScreenTests() {
         });
         console.log("Status:", createRes.status);
         if (createRes.status === 201 && createRes.data.success) {
-            console.log("✅ Success: Screen created.");
+            console.log(" Success: Screen created.");
             screenID = createRes.data.screen._id;
         }
 
         // 2. GET /:theaterId (Public)
-        console.log("\n2️⃣ Testing Get Screens by Theater (Public)...");
+        console.log("\n Testing Get Screens by Theater (Public)...");
         const getRes = await axios.get(`${BASE_URL}/${theaterId}`);
         console.log("Status:", getRes.status);
         if (getRes.status === 200 && getRes.data.success && Array.isArray(getRes.data.screens)) {
-            console.log("✅ Success: Screens retrieved publically.");
+            console.log("Success: Screens retrieved publically.");
         }
 
         // 3. PUT /:id (Admin)
-        console.log("\n3️⃣ Testing Update Screen (Admin Only)...");
+        console.log("\n Testing Update Screen (Admin Only)...");
         const updateRes = await axios.put(`${BASE_URL}/${screenID}`, { ...screenData, screenName: "Screen 1 Updated" }, {
             headers: { "Authorization": `Bearer ${adminToken}` }
         });
         console.log("Status:", updateRes.status);
         if (updateRes.status === 200 && updateRes.data.success && updateRes.data.screen.screenName === "Screen 1 Updated") {
-            console.log("✅ Success: Screen updated.");
+            console.log(" Success: Screen updated.");
         }
 
         // 4. DELETE /:id (Admin)
-        console.log("\n4️⃣ Testing Delete Screen (Admin Only)...");
+        console.log("\n Testing Delete Screen (Admin Only)...");
         const deleteRes = await axios.delete(`${BASE_URL}/${screenID}`, {
             headers: { "Authorization": `Bearer ${adminToken}` }
         });
         console.log("Status:", deleteRes.status);
         if (deleteRes.status === 200) {
-            console.log("✅ Success: Screen deleted.");
+            console.log(" Success: Screen deleted.");
         }
 
     } catch (err: any) {
-        console.error("❌ Error:", err.response?.data || err.message);
+        console.error(" Error:", err.response?.data || err.message);
     }
 }
 
