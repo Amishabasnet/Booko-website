@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { getMovies, createMovie, updateMovie, deleteMovie } from "@/app/services/movie.service";
 import { getImageUrl } from "@/app/utils/apiClient";
 import Loader from "./ui/Loader";
@@ -136,8 +137,11 @@ export default function AdminMovieManagement() {
             fetchMovies();
             setModalOpen(false);
             resetForm();
-        } catch (err: any) {
-            setError(err.response?.data?.message || "Operation failed.");
+        } catch (err) {
+            const errorMessage = axios.isAxiosError(err) 
+                ? err.response?.data?.message || "Operation failed."
+                : "Operation failed.";
+            setError(errorMessage);
         }
     };
 
@@ -199,7 +203,7 @@ export default function AdminMovieManagement() {
 
             {modalOpen && (
                 <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex justify-center items-center z-[1000] p-5 animate-in fade-in duration-300" role="dialog" aria-modal="true" aria-labelledby="admin-movie-modal-title">
-                    <div className="bg-[#0a0a0a] border border-white/10 rounded-[32px] p-8 md:p-10 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl animate-in zoom-in-95 duration-300" role="dialog" aria-modal="true" aria-labelledby="admin-movie-modal-title">>
+                    <div className="bg-[#0a0a0a] border border-white/10 rounded-[32px] p-8 md:p-10 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl animate-in zoom-in-95 duration-300" role="dialog" aria-modal="true" aria-labelledby="admin-movie-modal-title">
                         <div className="flex justify-between items-center mb-8">
                             <h3 id="admin-movie-modal-title" className="text-2xl font-black tracking-tight">{isEditing ? "Edit Movie" : "Add New Movie"}</h3>
                             <button onClick={() => setModalOpen(false)} className="text-white/40 hover:text-white text-2xl font-light">×</button>
@@ -239,7 +243,7 @@ export default function AdminMovieManagement() {
                                 <div className="flex flex-col md:flex-row gap-6 items-start">
                                     <div className="w-full md:w-32 aspect-[2/3] bg-white/5 rounded-2xl overflow-hidden border border-white/10 flex-shrink-0">
                                         {previewUrl ? (
-                                            <img src={previewUrl} alt="Poster Preview" className="w-full h-full object-cover" />
+                                            <Image src={previewUrl} alt="Poster Preview" fill className="object-cover" />
                                         ) : (
                                             <div className="w-full h-full flex items-center justify-center text-[10px] font-black uppercase text-white/20 text-center p-4">No Preview</div>
                                         )}

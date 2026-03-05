@@ -110,9 +110,15 @@ export default function HomePage() {
               Book your tickets for the latest blockbusters in just a few clicks. Dive into the world of entertainment with Booko.
             </p>
             <div className="flex flex-wrap gap-4">
-              <a href="#now-showing" className="bg-primary hover:bg-primary/90 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-xl shadow-primary/20 transition-all hover:scale-105 active:scale-95 no-underline">
-                Book Now
-              </a>
+              {user ? (
+                <a href="#now-showing" className="bg-primary hover:bg-primary/90 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-xl shadow-primary/20 transition-all hover:scale-105 active:scale-95 no-underline">
+                  Book Now
+                </a>
+              ) : (
+                <Link href="/login" className="bg-primary hover:bg-primary/90 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-xl shadow-primary/20 transition-all hover:scale-105 active:scale-95 no-underline">
+                  Book Now
+                </Link>
+              )}
               <a href="#now-showing" className="bg-white/10 hover:bg-white/20 border border-white/10 text-white px-8 py-4 rounded-xl font-bold text-lg backdrop-blur-md transition-all hover:scale-105 active:scale-95 no-underline">
                 View Schedule
               </a>

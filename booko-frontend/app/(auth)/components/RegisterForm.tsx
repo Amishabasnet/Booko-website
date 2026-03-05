@@ -71,7 +71,7 @@ export default function RegisterForm() {
 
       <Field
         label="Phone Number"
-        placeholder="+1 (555) 000-0000"
+        placeholder="9800000000"
         type="tel"
         error={errors.phoneNumber?.message}
         {...register("phoneNumber")}
