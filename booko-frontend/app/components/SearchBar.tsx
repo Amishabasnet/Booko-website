@@ -61,7 +61,9 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
                     <option value="Romance" style={{ background: 'black', color: 'white' }}>Romance</option>
                 </select>
 
+                <label htmlFor="search-date" className="text-[10px] uppercase font-bold text-white/40 tracking-widest ml-1">Date</label>
                 <input
+                    id="search-date"
                     type="date"
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
