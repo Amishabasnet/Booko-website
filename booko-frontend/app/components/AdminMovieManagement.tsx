@@ -198,10 +198,10 @@ export default function AdminMovieManagement() {
             </div>
 
             {modalOpen && (
-                <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex justify-center items-center z-[1000] p-5 animate-in fade-in duration-300">
-                    <div className="bg-[#0a0a0a] border border-white/10 rounded-[32px] p-8 md:p-10 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl animate-in zoom-in-95 duration-300">
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex justify-center items-center z-[1000] p-5 animate-in fade-in duration-300" role="dialog" aria-modal="true" aria-labelledby="admin-movie-modal-title">
+                    <div className="bg-[#0a0a0a] border border-white/10 rounded-[32px] p-8 md:p-10 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl animate-in zoom-in-95 duration-300" role="dialog" aria-modal="true" aria-labelledby="admin-movie-modal-title">>
                         <div className="flex justify-between items-center mb-8">
-                            <h3 className="text-2xl font-black tracking-tight">{isEditing ? "Edit Movie" : "Add New Movie"}</h3>
+                            <h3 id="admin-movie-modal-title" className="text-2xl font-black tracking-tight">{isEditing ? "Edit Movie" : "Add New Movie"}</h3>
                             <button onClick={() => setModalOpen(false)} className="text-white/40 hover:text-white text-2xl font-light">×</button>
                         </div>
                         <form onSubmit={handleSubmit} className="flex flex-col gap-6">

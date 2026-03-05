@@ -20,17 +20,17 @@ async function runTheaterTests() {
     };
 
     // 0. Setup Users and get Tokens
-    console.log("\n0️⃣ Setting up admin and user accounts...");
+    console.log("\n Setting up admin and user accounts...");
     await fetch(`${AUTH_URL}/register`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(adminUser) });
     await fetch(`${AUTH_URL}/register`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(regularUser) });
 
     const adminToken = await fetch(`${AUTH_URL}/login`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: adminUser.email, password: adminUser.password }) }).then(res => res.json()).then(d => d.token);
     const userToken = await fetch(`${AUTH_URL}/login`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: regularUser.email, password: regularUser.password }) }).then(res => res.json()).then(d => d.token);
 
-    let theaterID: string;
+    let theaterID: string = "";
 
     // 1. POST / (Admin)
-    console.log("\n1️⃣ Testing Create Theater (Admin Only)...");
+    console.log("\nTesting Create Theater (Admin Only)...");
     const theaterData = {
         name: "Grand Cinema",
         location: "Downtown",
@@ -46,28 +46,29 @@ async function runTheaterTests() {
         const data = await res.json();
         console.log("Status:", res.status);
         if (res.status === 201 && data.success) {
-            console.log("✅ Success: Theater created.");
+            console.log("Success: Theater created.");
             theaterID = data.theater._id;
         } else {
-            console.error("❌ Failure: Admin could not create theater.");
+            console.error("Failure: Admin could not create theater.");
         }
-    } catch (err: any) { console.error("❌ Error:", err.message); }
+    } catch (err: any) { console.error(" Error:", err.message); }
 
     // 2. GET / (Public)
-    console.log("\n2️⃣ Testing GetAll Theaters (Public)...");
+    console.log("\nTesting GetAll Theaters (Public)...");
     try {
         const res = await fetch(`${BASE_URL}/`);
         const data = await res.json();
         console.log("Status:", res.status);
         if (res.status === 200 && data.success && Array.isArray(data.theaters)) {
-            console.log("✅ Success: Theaters retrieved publically.");
+            console.log("Success: Theaters retrieved publically.");
         } else {
-            console.error("❌ Failure: Public could not fetch theaters.");
+            console.error("Failure: Public could not fetch theaters.");
         }
-    } catch (err: any) { console.error("❌ Error:", err.message); }
+    } catch (err: any) { console.error(" Error:", err.message); }
 
     // 3. PUT /:id (Admin)
-    console.log("\n3️⃣ Testing Update Theater (Admin Only)...");
+    console.log("\n Testing Update Theater (Admin Only)...");
+    if (theaterID) {
     try {
         const res = await fetch(`${BASE_URL}/${theaterID}`, {
             method: "PUT",
@@ -77,14 +78,17 @@ async function runTheaterTests() {
         const data = await res.json();
         console.log("Status:", res.status);
         if (res.status === 200 && data.success && data.theater.name === "Grand Cinema Updated") {
-            console.log("✅ Success: Theater updated.");
+            console.log("Success: Theater updated.");
         } else {
-            console.error("❌ Failure: Admin could not update theater.");
+            console.error("Failure: Admin could not update theater.");
         }
-    } catch (err: any) { console.error("❌ Error:", err.message); }
+    } catch (err: any) { console.error("Error:", err.message); }
+    } else {
+        console.error("Failure: Theater ID not available for update test.");
+    }
 
     // 4. RBAC Check: POST / (User should be Forbidden)
-    console.log("\n4️⃣ Testing Create Theater (Regular User - Forbidden)...");
+    console.log("\n Testing Create Theater (Regular User - Forbidden)...");
     try {
         const res = await fetch(`${BASE_URL}/`, {
             method: "POST",
@@ -93,14 +97,15 @@ async function runTheaterTests() {
         });
         console.log("Status:", res.status);
         if (res.status === 403) {
-            console.log("✅ Success: Regular user forbidden correctly (403).");
+            console.log(" Success: Regular user forbidden correctly (403).");
         } else {
-            console.error("❌ Failure: Expected 403 for regular user.");
+            console.error(" Failure: Expected 403 for regular user.");
         }
-    } catch (err: any) { console.error("❌ Error:", err.message); }
+    } catch (err: any) { console.error(" Error:", err.message); }
 
     // 5. DELETE /:id (Admin)
-    console.log("\n5️⃣ Testing Delete Theater (Admin Only)...");
+    console.log("\n Testing Delete Theater (Admin Only)...");
+    if (theaterID) {
     try {
         const res = await fetch(`${BASE_URL}/${theaterID}`, {
             method: "DELETE",
@@ -108,11 +113,14 @@ async function runTheaterTests() {
         });
         console.log("Status:", res.status);
         if (res.status === 200) {
-            console.log("✅ Success: Theater deleted.");
+            console.log(" Success: Theater deleted.");
         } else {
-            console.error("❌ Failure: Admin could not delete theater.");
+            console.error(" Failure: Admin could not delete theater.");
         }
-    } catch (err: any) { console.error("❌ Error:", err.message); }
+    } catch (err: any) { console.error(" Error:", err.message); }
+    } else {
+        console.error("Failure: Theater ID not available for delete test.");
+    }
 }
 
 runTheaterTests();

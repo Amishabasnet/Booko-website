@@ -48,11 +48,11 @@ async function bootstrap() {
   await connectDB();
 
   app.listen(ENV.PORT, () => {
-    console.log(`✅ Server running on http://localhost:${ENV.PORT}`);
+    console.log(`Server running on http://localhost:${ENV.PORT}`);
   });
 }
 
 bootstrap().catch((err) => {
-  console.error("❌ Server failed to start:", err);
+  console.error("Server failed to start:", err);
   process.exit(1);
 });

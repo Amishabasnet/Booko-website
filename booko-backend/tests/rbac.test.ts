@@ -2,7 +2,7 @@
 const BASE_URL = "http://localhost:5050/api/auth";
 
 async function runRBACTests() {
-    console.log("🚀 Starting RBAC Middleware Tests...");
+    console.log("Starting RBAC Middleware Tests...");
 
     const adminUser = {
         name: "Admin User",
@@ -19,7 +19,7 @@ async function runRBACTests() {
     };
 
     // 0. Register and Login
-    console.log("\n0️⃣ Pre-registering and logging in users...");
+    console.log("\n Pre-registering and logging in users...");
     await fetch(`${BASE_URL}/register`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(adminUser) });
     await fetch(`${BASE_URL}/register`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(regularUser) });
 
@@ -30,7 +30,7 @@ async function runRBACTests() {
     const userToken = userLogin.token;
 
     // 1. Test Admin Access (Authorized)
-    console.log("\n1️⃣ Testing Admin Access to Admin Route...");
+    console.log("\n Testing Admin Access to Admin Route...");
     try {
         const res = await fetch(`${BASE_URL}/admin-only`, {
             method: "GET",
@@ -39,14 +39,14 @@ async function runRBACTests() {
         const data = await res.json();
         console.log("Status:", res.status);
         if (res.status === 200 && data.success) {
-            console.log("✅ Success: Admin correctly authorized.");
+            console.log(" Success: Admin correctly authorized.");
         } else {
-            console.error("❌ Failure: Admin should be authorized.");
+            console.error(" Failure: Admin should be authorized.");
         }
-    } catch (err: any) { console.error("❌ Error:", err.message); }
+    } catch (err: any) { console.error(" Error:", err.message); }
 
     // 2. Test User Access (Forbidden)
-    console.log("\n2️⃣ Testing Regular User Access to Admin Route...");
+    console.log("\n Testing Regular User Access to Admin Route...");
     try {
         const res = await fetch(`${BASE_URL}/admin-only`, {
             method: "GET",
@@ -54,23 +54,23 @@ async function runRBACTests() {
         });
         console.log("Status:", res.status);
         if (res.status === 403) {
-            console.log("✅ Success: Regular user correctly forbidden (403).");
+            console.log(" Success: Regular user correctly forbidden (403).");
         } else {
-            console.error("❌ Failure: Expected 403 Forbidden for insufficient role.");
+            console.error(" Failure: Expected 403 Forbidden for insufficient role.");
         }
-    } catch (err: any) { console.error("❌ Error:", err.message); }
+    } catch (err: any) { console.error(" Error:", err.message); }
 
     // 3. Test No Token (Unauthorized)
-    console.log("\n3️⃣ Testing Access Without Token...");
+    console.log("\n Testing Access Without Token...");
     try {
         const res = await fetch(`${BASE_URL}/admin-only`, { method: "GET" });
         console.log("Status:", res.status);
         if (res.status === 401) {
-            console.log("✅ Success: Unauthorized access correctly handled (401).");
+            console.log(" Success: Unauthorized access correctly handled (401).");
         } else {
-            console.error("❌ Failure: Expected 401 Unauthorized for missing token.");
+            console.error(" Failure: Expected 401 Unauthorized for missing token.");
         }
-    } catch (err) { console.error("❌ Error:", err.message); }
+    } catch (err: any) { console.error(" Error:", err.message); }
 }
 
 runRBACTests();
