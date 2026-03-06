@@ -2,11 +2,18 @@ import { bookingRepository } from "../repositories/booking.repository";
 import { ShowtimeModel } from "../models/showtime.model";
 import { showtimeService } from "./showtime.service";
 import { ApiError } from "../errors/ApiErrors";
+import { userRepository } from "../repositories/user.repository"; // for customer snapshots
 
 async function enrichBooking(booking: any) {
     const bObj = booking.toObject ? booking.toObject() : booking;
     if (bObj.showtimeId && typeof bObj.showtimeId === "object") {
         bObj.showtimeId.screenId = await showtimeService.resolveScreenDetails(bObj.showtimeId.screenId);
+    }
+    // ensure backward compatibility: if customerName/email missing but userId populated,
+    // copy over values from the populated user document
+    if (!bObj.customerName && bObj.userId && typeof bObj.userId === "object") {
+        bObj.customerName = bObj.userId.name;
+        bObj.customerEmail = bObj.userId.email;
     }
     return bObj;
 }
@@ -37,18 +44,35 @@ export const bookingService = {
         // 3. Calculate total amount
         const totalAmount = showtime.ticketPrice * selectedSeats.length;
 
+        // determine snapshot fields
+        let customerName = "";
+        let customerEmail = "";
+        const user = await userRepository.findById(userId);
+        if (user) {
+            customerName = user.name;
+            customerEmail = user.email;
+        }
+
         // 4. Create booking record
-        return await bookingRepository.create({
+        const created = await bookingRepository.create({
             userId,
+            customerName,
+            customerEmail,
             showtimeId,
             selectedSeats,
             totalAmount,
             bookingStatus: "confirmed",
             paymentStatus: "pending",
         });
+
+        // populate before returning so frontend can immediately display the customer info
+        // `findById` already takes care of populating userId and showtime details
+        // convert the ObjectId to string for the repository helper
+        return await bookingRepository.findById(created._id.toString());
     },
 
     async getUserBookings(userId: string) {
+        // also populate the user reference in case a consumer needs name/email
         const bookings = await bookingRepository.findByUserId(userId);
         return await Promise.all(bookings.map(enrichBooking));
     },

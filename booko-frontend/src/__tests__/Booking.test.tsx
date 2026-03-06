@@ -1,7 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import Booking from '@/app/components/Booking';
 import * as bookingService from '@/app/services/booking.service';
-import axios from 'axios';
+import { AuthProvider } from '@/app/context/AuthContext';
 
 jest.mock('@/app/services/booking.service');
 
@@ -13,9 +13,17 @@ beforeEach(() => {
     (bookingService.initiatePayment as jest.Mock).mockImplementation(mockInitiatePayment);
 });
 
+const renderWithAuth = (component: React.ReactElement) => {
+    return render(
+        <AuthProvider>
+            {component}
+        </AuthProvider>
+    );
+};
+
 describe('Booking Component', () => {
     test('renders booking summary', () => {
-        render(
+        renderWithAuth(
             <Booking
                 showtimeId="st1"
                 selectedSeats={['A-1', 'A-2']}
@@ -33,7 +41,7 @@ describe('Booking Component', () => {
         mockCreateBooking.mockResolvedValue({ data: { booking: { _id: 'bk1' } } });
         mockInitiatePayment.mockResolvedValue({});
         const onSuccess = jest.fn();
-        render(
+        renderWithAuth(
             <Booking
                 showtimeId="st1"
                 selectedSeats={['A-1']}
@@ -50,7 +58,7 @@ describe('Booking Component', () => {
 
     test('displays error on booking failure', async () => {
         mockCreateBooking.mockRejectedValue(new Error('fail'));
-        render(
+        renderWithAuth(
             <Booking
                 showtimeId="st1"
                 selectedSeats={['A-1']}
@@ -65,7 +73,7 @@ describe('Booking Component', () => {
 
     test('back button triggers onBack', () => {
         const onBack = jest.fn();
-        render(
+        renderWithAuth(
             <Booking
                 showtimeId="st1"
                 selectedSeats={[]}

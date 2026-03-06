@@ -1,79 +1,40 @@
+import request from "supertest";
 
-const BASE_URL = "http://localhost:5050/api/auth";
+const BASE_URL = "http://localhost:5050";
 
-async function runTests() {
-    console.log(" Starting Registration API Tests...");
+describe("Registration API", () => {
+  const randomSuffix = Math.floor(Math.random() * 10000);
+  const testUser = {
+    name: "Test User",
+    email: `testuser${randomSuffix}@example.com`,
+    password: "password123",
+    role: "user",
+  };
 
-    const randomSuffix = Math.floor(Math.random() * 10000);
-    const testUser = {
-        name: "Test User",
-        email: `testuser${randomSuffix}@example.com`,
-        password: "password123",
-        role: "user"
-    };
+  it("should register a new user successfully", async () => {
+    const res = await request(BASE_URL)
+      .post("/api/auth/register")
+      .send(testUser);
 
-    // 1. Test Successful Registration
-    console.log("\n Testing Successful Registration...");
-    try {
-        const res = await fetch(`${BASE_URL}/register`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(testUser)
-        });
-        const data = await res.json();
-        console.log("Status:", res.status);
-        console.log("Response:", JSON.stringify(data, null, 2));
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+    expect(res.body.user).toBeDefined();
+    expect(res.body.user.id).toBeDefined();
+  });
 
-        if (res.status === 201 && data.success && data.user && data.user.id) {
-            console.log(" Success: User registered with ID:", data.user.id);
-        } else {
-            console.error(" Failure: Unexpected response format or status code");
-        }
-    } catch (err) {
-        console.error(" Error during registration:", err instanceof Error ? err.message : String(err));
-    }
+  it("should return 409 when email is duplicated", async () => {
+    const res = await request(BASE_URL)
+      .post("/api/auth/register")
+      .send(testUser);
 
-    // 2. Test Duplicate Email
-    console.log("\n Testing Duplicate Email Registration...");
-    try {
-        const res = await fetch(`${BASE_URL}/register`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(testUser)
-        });
-        const data = await res.json();
-        console.log("Status:", res.status);
-        console.log("Response:", JSON.stringify(data, null, 2));
+    expect(res.status).toBe(409);
+  });
 
-        if (res.status === 409) {
-            console.log(" Success: Duplicate email correctly handled with 409");
-        } else {
-            console.error(" Failure: Expected 409 for duplicate email");
-        }
-    } catch (err) {
-        console.error(" Error during duplicate test:", err instanceof Error ? err.message : String(err));
-    }
+  it("should return 400 on validation error (short password)", async () => {
+    const res = await request(BASE_URL)
+      .post("/api/auth/register")
+      .send({ ...testUser, email: `another${randomSuffix}@example.com`, password: "123" });
 
-    // 3. Test Validation Errors (Short Password)
-    console.log("\n Testing Validation Error (Short Password)...");
-    try {
-        const res = await fetch(`${BASE_URL}/register`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ ...testUser, password: "123", email: "new@example.com" })
-        });
-        const data = await res.json();
-        console.log("Status:", res.status);
-        console.log("Response:", JSON.stringify(data, null, 2));
-
-        if (res.status === 400) {
-            console.log(" Success: Validation error correctly handled with 400");
-        } else {
-            console.error(" Failure: Expected 400 for validation error");
-        }
-    } catch (err) {
-        console.error(" Error during validation test:", err instanceof Error ? err.message : String(err));
-    }
-}
-
-runTests();
+    expect(res.status).toBe(400);
+  });
+});

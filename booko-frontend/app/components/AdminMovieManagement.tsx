@@ -1,276 +1,510 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
-import { getMovies, createMovie, updateMovie, deleteMovie } from "@/app/services/movie.service";
+import axios from "axios";
+import {
+  getMovies,
+  createMovie,
+  updateMovie,
+  deleteMovie,
+} from "@/app/services/movie.service";
 import { getImageUrl } from "@/app/utils/apiClient";
 import Loader from "./ui/Loader";
-import ErrorMessage from "./ui/ErrorMessage";
 import ConfirmModal, { useConfirmModal } from "./ui/ConfirmModal";
-import axios from "axios";
 
 interface Movie {
-    _id: string;
-    title: string;
-    description: string;
-    genre: string[];
-    duration: number;
-    language: string;
-    releaseDate: string;
-    posterImage?: string | File | null;
+  _id: string;
+  title: string;
+  description: string;
+  genre: string[];
+  duration: number;
+  language: string;
+  releaseDate: string;
+  posterImage?: string | File | null;
 }
 
 export default function AdminMovieManagement() {
-    const [movies, setMovies] = useState<Movie[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [success, setSuccess] = useState<string | null>(null);
+  const [movies, setMovies] = useState<Movie[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
-    // Form State
-    const [isEditing, setIsEditing] = useState(false);
-    const [currentMovieId, setCurrentMovieId] = useState<string | null>(null);
-    const [formData, setFormData] = useState({
-        title: "",
-        description: "",
-        genre: "",
-        duration: 0,
-        language: "",
-        releaseDate: "",
-        posterImage: null as File | string | null,
+  const [isEditing, setIsEditing] = useState(false);
+  const [currentMovieId, setCurrentMovieId] = useState<string | null>(null);
+
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    genre: "",
+    duration: 0,
+    language: "",
+    releaseDate: "",
+    posterImage: null as File | string | null,
+  });
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [fileName, setFileName] = useState<string | null>(null);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const confirm = useConfirmModal();
+
+  useEffect(() => {
+    fetchMovies();
+  }, []);
+
+  // cleanup blob URLs (avoid memory leak)
+  useEffect(() => {
+    return () => {
+      if (previewUrl?.startsWith("blob:")) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
+
+  const fetchMovies = async () => {
+    try {
+      const res = await getMovies();
+      setMovies(res.data.movies);
+    } catch {
+      setError("Failed to fetch movies.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // revoke previous blob preview if any
+    setPreviewUrl((prev) => {
+      if (prev?.startsWith("blob:")) URL.revokeObjectURL(prev);
+      return prev;
     });
 
-    const [modalOpen, setModalOpen] = useState(false);
-    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-    const confirm = useConfirmModal();
+    const url = URL.createObjectURL(file);
+    setFormData((prev) => ({ ...prev, posterImage: file }));
+    setPreviewUrl(url);
+    setFileName(file.name);
 
-    useEffect(() => {
+    // allow selecting the same file again
+    e.target.value = "";
+  };
+
+  const resetForm = () => {
+    // revoke current blob url
+    setPreviewUrl((prev) => {
+      if (prev?.startsWith("blob:")) URL.revokeObjectURL(prev);
+      return null;
+    });
+
+    setFormData({
+      title: "",
+      description: "",
+      genre: "",
+      duration: 0,
+      language: "",
+      releaseDate: "",
+      posterImage: null,
+    });
+    setIsEditing(false);
+    setCurrentMovieId(null);
+    setFileName(null);
+
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const closeModal = () => {
+    setModalOpen(false);
+    resetForm();
+  };
+
+  const openModal = (movie?: Movie) => {
+    setError(null);
+    setSuccess(null);
+
+    // revoke any old blob preview
+    setPreviewUrl((prev) => {
+      if (prev?.startsWith("blob:")) URL.revokeObjectURL(prev);
+      return prev;
+    });
+
+    if (movie) {
+      setIsEditing(true);
+      setCurrentMovieId(movie._id);
+
+      setFormData({
+        title: movie.title,
+        description: movie.description,
+        genre: movie.genre.join(", "),
+        duration: movie.duration,
+        language: movie.language,
+        releaseDate: new Date(movie.releaseDate).toISOString().split("T")[0],
+        posterImage: movie.posterImage || null,
+      });
+
+      setPreviewUrl(getImageUrl(movie.posterImage as string) || null);
+      setFileName(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    } else {
+      resetForm();
+    }
+
+    setModalOpen(true);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setSuccess(null);
+
+    const submitData = new FormData();
+    submitData.append("title", formData.title);
+    submitData.append("description", formData.description);
+
+    const genreArray = formData.genre
+      .split(",")
+      .map((g) => g.trim())
+      .filter(Boolean);
+    genreArray.forEach((g) => submitData.append("genre[]", g));
+
+    submitData.append("duration", String(formData.duration));
+    submitData.append("language", formData.language);
+    submitData.append("releaseDate", formData.releaseDate);
+
+    if (formData.posterImage instanceof File) {
+      submitData.append("posterImage", formData.posterImage);
+    }
+
+    try {
+      if (isEditing && currentMovieId) {
+        await updateMovie(currentMovieId, submitData);
+        setSuccess("Movie updated successfully!");
+      } else {
+        await createMovie(submitData);
+        setSuccess("Movie created successfully!");
+      }
+
+      await fetchMovies();
+      setModalOpen(false);
+      resetForm();
+    } catch (err) {
+      const errorMessage = axios.isAxiosError(err)
+        ? err.response?.data?.message || "Operation failed."
+        : "Operation failed.";
+      setError(errorMessage);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    confirm.showConfirm("Are you sure you want to delete this movie?", async () => {
+      try {
+        await deleteMovie(id);
+        setSuccess("Movie deleted successfully!");
         fetchMovies();
-    }, []);
+      } catch {
+        setError("Failed to delete movie.");
+      }
+    });
+  };
 
-    const fetchMovies = async () => {
-        try {
-            const res = await getMovies();
-            setMovies(res.data.movies);
-        } catch (err) {
-            setError("Failed to fetch movies.");
-        } finally {
-            setLoading(false);
-        }
-    };
+  if (loading) return <Loader message="Managing your cinematic library..." />;
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
+  return (
+    <section className="mt-10 bg-white/5 rounded-3xl p-6 md:p-8 border border-white/5 shadow-inner">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <h2 className="text-2xl font-black m-0 tracking-tight">Movie Management</h2>
+        <button
+          onClick={() => openModal()}
+          className="bg-green-500 hover:bg-green-600 text-sm py-2.5 px-6 rounded-xl font-bold cursor-pointer text-white border-none shadow-lg shadow-green-500/20 transition-all active:scale-95"
+        >
+          + Add New Movie
+        </button>
+      </div>
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            const file = e.target.files[0];
-            setFormData(prev => ({ ...prev, posterImage: file }));
-            setPreviewUrl(URL.createObjectURL(file));
-        }
-    };
+      {error && (
+        <div className="bg-red-500/10 text-red-500 p-4 rounded-xl mb-6 text-sm border border-red-500/10">
+          {error}
+        </div>
+      )}
+      {success && (
+        <div className="bg-green-500/10 text-green-500 p-4 rounded-xl mb-6 text-sm border border-green-500/10">
+          {success}
+        </div>
+      )}
 
-    const resetForm = () => {
-        setFormData({
-            title: "",
-            description: "",
-            genre: "",
-            duration: 0,
-            language: "",
-            releaseDate: "",
-            posterImage: null,
-        });
-        setIsEditing(false);
-        setCurrentMovieId(null);
-        setPreviewUrl(null);
-    };
+      <div className="overflow-x-auto -mx-6 md:mx-0">
+        <table className="w-full border-collapse text-left min-w-[600px]">
+          <thead>
+            <tr className="border-b border-white/10">
+              <th className="p-4 text-white/40 font-bold text-xs uppercase tracking-widest">
+                Title
+              </th>
+              <th className="p-4 text-white/40 font-bold text-xs uppercase tracking-widest">
+                Genre
+              </th>
+              <th className="p-4 text-white/40 font-bold text-xs uppercase tracking-widest">
+                Duration
+              </th>
+              <th className="p-4 text-white/40 font-bold text-xs uppercase tracking-widest">
+                Language
+              </th>
+              <th className="p-4 text-white/40 font-bold text-xs uppercase tracking-widest text-right">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-white/5">
+            {movies.map((movie) => (
+              <tr
+                key={movie._id}
+                className="hover:bg-white/[0.02] transition-colors group"
+              >
+                <td className="p-4 text-sm font-semibold">{movie.title}</td>
+                <td className="p-4 text-xs text-white/60">
+                  {movie.genre.join(", ")}
+                </td>
+                <td className="p-4 text-xs text-white/60">{movie.duration} min</td>
+                <td className="p-4 text-xs text-white/60">{movie.language}</td>
+                <td className="p-4 text-right">
+                  <div className="flex justify-end gap-2 group-hover:translate-x-0 transition-transform">
+                    <button
+                      onClick={() => openModal(movie)}
+                      className="bg-white/5 hover:bg-white/10 text-white/70 hover:text-white py-1.5 px-4 rounded-lg text-xs font-bold border border-white/10 transition-colors"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(movie._id)}
+                      className="bg-primary/10 hover:bg-primary/20 text-primary py-1.5 px-4 rounded-lg text-xs font-bold border border-primary/20 transition-colors"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-    const openModal = (movie?: Movie) => {
-        if (movie) {
-            setIsEditing(true);
-            setCurrentMovieId(movie._id);
-            setFormData({
-                title: movie.title,
-                description: movie.description,
-                genre: movie.genre.join(", "),
-                duration: movie.duration,
-                language: movie.language,
-                releaseDate: new Date(movie.releaseDate).toISOString().split("T")[0],
-                posterImage: movie.posterImage || null,
-            });
-            setPreviewUrl(getImageUrl(movie.posterImage as string) || null);
-        } else {
-            resetForm();
-        }
-        setModalOpen(true);
-    };
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setError(null);
-        setSuccess(null);
-
-        const submitData = new FormData();
-        submitData.append("title", formData.title);
-        submitData.append("description", formData.description);
-
-        const genreArray = formData.genre.split(",").map(g => g.trim());
-        genreArray.forEach(g => submitData.append("genre[]", g));
-
-        submitData.append("duration", formData.duration.toString());
-        submitData.append("language", formData.language);
-        submitData.append("releaseDate", formData.releaseDate);
-
-        if (formData.posterImage instanceof File) {
-            submitData.append("posterImage", formData.posterImage);
-        }
-
-        try {
-            if (isEditing && currentMovieId) {
-                await updateMovie(currentMovieId, submitData);
-                setSuccess("Movie updated successfully!");
-            } else {
-                await createMovie(submitData);
-                setSuccess("Movie created successfully!");
-            }
-            fetchMovies();
-            setModalOpen(false);
-            resetForm();
-        } catch (err) {
-            const errorMessage = axios.isAxiosError(err) 
-                ? err.response?.data?.message || "Operation failed."
-                : "Operation failed.";
-            setError(errorMessage);
-        }
-    };
-
-    const handleDelete = async (id: string) => {
-        confirm.showConfirm("Are you sure you want to delete this movie?", async () => {
-            try {
-                await deleteMovie(id);
-                setSuccess("Movie deleted successfully!");
-                fetchMovies();
-            } catch (err) {
-                setError("Failed to delete movie.");
-            }
-        });
-    };
-
-    if (loading) return <Loader message="Managing your cinematic library..." />;
-
-    return (
-        <section className="mt-10 bg-white/5 rounded-3xl p-6 md:p-8 border border-white/5 shadow-inner">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-                <h2 className="text-2xl font-black m-0 tracking-tight">Movie Management</h2>
-                <button onClick={() => openModal()} className="bg-green-500 hover:bg-green-600 text-sm py-2.5 px-6 rounded-xl font-bold cursor-pointer text-white border-none shadow-lg shadow-green-500/20 transition-all active:scale-95">
-                    + Add New Movie
-                </button>
+      {modalOpen && (
+        <div
+          className="fixed inset-0 bg-black/80 backdrop-blur-md flex justify-center items-center z-[1000] p-5 animate-in fade-in duration-300"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="admin-movie-modal-title"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) closeModal();
+          }}
+        >
+          <div className="bg-[#0a0a0a] border border-white/10 rounded-[32px] p-8 md:p-10 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl animate-in zoom-in-95 duration-300">
+            <div className="flex justify-between items-center mb-8">
+              <h3 id="admin-movie-modal-title" className="text-2xl font-black tracking-tight">
+                {isEditing ? "Edit Movie" : "Add New Movie"}
+              </h3>
+              <button onClick={closeModal} className="text-white/40 hover:text-white text-2xl font-light">
+                ×
+              </button>
             </div>
 
-            {error && <div className="bg-red-500/10 text-red-500 p-4 rounded-xl mb-6 text-sm border border-red-500/10">{error}</div>}
-            {success && <div className="bg-green-500/10 text-green-500 p-4 rounded-xl mb-6 text-sm border border-green-500/10">{success}</div>}
+            <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+              <div className="grid gap-2">
+                <label className="text-[10px] uppercase font-bold text-white/40 tracking-widest ml-1">
+                  Title
+                </label>
+                <input
+                  name="title"
+                  value={formData.title}
+                  onChange={handleInputChange}
+                  className="bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm focus:border-primary/50 focus:outline-none transition-colors"
+                  required
+                />
+              </div>
 
-            <div className="overflow-x-auto -mx-6 md:mx-0">
-                <table className="w-full border-collapse text-left min-w-[600px]">
-                    <thead>
-                        <tr className="border-b border-white/10">
-                            <th className="p-4 text-white/40 font-bold text-xs uppercase tracking-widest">Title</th>
-                            <th className="p-4 text-white/40 font-bold text-xs uppercase tracking-widest">Genre</th>
-                            <th className="p-4 text-white/40 font-bold text-xs uppercase tracking-widest">Duration</th>
-                            <th className="p-4 text-white/40 font-bold text-xs uppercase tracking-widest">Language</th>
-                            <th className="p-4 text-white/40 font-bold text-xs uppercase tracking-widest text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-white/5">
-                        {movies.map(movie => (
-                            <tr key={movie._id} className="hover:bg-white/[0.02] transition-colors group">
-                                <td className="p-4 text-sm font-semibold">{movie.title}</td>
-                                <td className="p-4 text-xs text-white/60">{movie.genre.join(", ")}</td>
-                                <td className="p-4 text-xs text-white/60">{movie.duration} min</td>
-                                <td className="p-4 text-xs text-white/60">{movie.language}</td>
-                                <td className="p-4 text-right">
-                                    <div className="flex justify-end gap-2 group-hover:translate-x-0 transition-transform">
-                                        <button onClick={() => openModal(movie)} className="bg-white/5 hover:bg-white/10 text-white/70 hover:text-white py-1.5 px-4 rounded-lg text-xs font-bold border border-white/10 transition-colors">Edit</button>
-                                        <button onClick={() => handleDelete(movie._id)} className="bg-primary/10 hover:bg-primary/20 text-primary py-1.5 px-4 rounded-lg text-xs font-bold border border-primary/20 transition-colors">Delete</button>
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+              <div className="grid gap-2">
+                <label className="text-[10px] uppercase font-bold text-white/40 tracking-widest ml-1">
+                  Description
+                </label>
+                <textarea
+                  name="description"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  className="bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm min-h-[120px] resize-vertical focus:border-primary/50 focus:outline-none transition-colors"
+                  required
+                />
+              </div>
 
-            {modalOpen && (
-                <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex justify-center items-center z-[1000] p-5 animate-in fade-in duration-300" role="dialog" aria-modal="true" aria-labelledby="admin-movie-modal-title">
-                    <div className="bg-[#0a0a0a] border border-white/10 rounded-[32px] p-8 md:p-10 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl animate-in zoom-in-95 duration-300" role="dialog" aria-modal="true" aria-labelledby="admin-movie-modal-title">
-                        <div className="flex justify-between items-center mb-8">
-                            <h3 id="admin-movie-modal-title" className="text-2xl font-black tracking-tight">{isEditing ? "Edit Movie" : "Add New Movie"}</h3>
-                            <button onClick={() => setModalOpen(false)} className="text-white/40 hover:text-white text-2xl font-light">×</button>
-                        </div>
-                        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-                            <div className="grid gap-2">
-                                <label className="text-[10px] uppercase font-bold text-white/40 tracking-widest ml-1">Title</label>
-                                <input name="title" value={formData.title} onChange={handleInputChange} className="bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm focus:border-primary/50 focus:outline-none transition-colors" required />
-                            </div>
-                            <div className="grid gap-2">
-                                <label className="text-[10px] uppercase font-bold text-white/40 tracking-widest ml-1">Description</label>
-                                <textarea name="description" value={formData.description} onChange={handleInputChange} className="bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm min-h-[120px] resize-vertical focus:border-primary/50 focus:outline-none transition-colors" required />
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="grid gap-2">
-                                    <label className="text-[10px] uppercase font-bold text-white/40 tracking-widest ml-1">Genre (comma separated)</label>
-                                    <input name="genre" value={formData.genre} onChange={handleInputChange} className="bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm focus:border-primary/50 focus:outline-none transition-colors" required />
-                                </div>
-                                <div className="grid gap-2">
-                                    <label className="text-[10px] uppercase font-bold text-white/40 tracking-widest ml-1">Duration (mins)</label>
-                                    <input type="number" name="duration" value={formData.duration} onChange={handleInputChange} className="bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm focus:border-primary/50 focus:outline-none transition-colors" required />
-                                </div>
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="grid gap-2">
-                                    <label className="text-[10px] uppercase font-bold text-white/40 tracking-widest ml-1">Language</label>
-                                    <input name="language" value={formData.language} onChange={handleInputChange} className="bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm focus:border-primary/50 focus:outline-none transition-colors" required />
-                                </div>
-                                <div className="grid gap-2">
-                                    <label className="text-[10px] uppercase font-bold text-white/40 tracking-widest ml-1">Release Date</label>
-                                    <input type="date" name="releaseDate" value={formData.releaseDate} onChange={handleInputChange} className="bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm focus:border-primary/50 focus:outline-none transition-colors" required />
-                                </div>
-                            </div>
-                            <div className="grid gap-4">
-                                <label className="text-[10px] uppercase font-bold text-white/40 tracking-widest ml-1">{isEditing && typeof formData.posterImage === 'string' ? "Update Poster File" : "Poster FIle"}</label>
-
-                                <div className="flex flex-col md:flex-row gap-6 items-start">
-                                    <div className="w-full md:w-32 aspect-[2/3] bg-white/5 rounded-2xl overflow-hidden border border-white/10 flex-shrink-0">
-                                        {previewUrl ? (
-                                            <Image src={previewUrl} alt="Poster Preview" fill className="object-cover" />
-                                        ) : (
-                                            <div className="w-full h-full flex items-center justify-center text-[10px] font-black uppercase text-white/20 text-center p-4">No Preview</div>
-                                        )}
-                                    </div>
-                                    <div className="flex-1 w-full">
-                                        <input type="file" name="posterImage" accept="image/*" onChange={handleFileChange} className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm focus:border-primary/50 focus:outline-none transition-colors file:bg-primary file:border-none file:rounded-lg file:text-white file:text-[10px] file:font-black file:uppercase file:px-4 file:py-2 file:mr-4 file:cursor-pointer hover:file:bg-primary/90" />
-                                        {isEditing && typeof formData.posterImage === 'string' && formData.posterImage !== '' && (
-                                            <div className="text-xs text-white/40 ml-1 mt-2 flex items-center gap-2">
-                                                <span className="text-primary text-base">ℹ️</span> Currently using: {formData.posterImage.split('/').pop()}
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="flex justify-end gap-4 mt-4 pt-10 border-t border-white/5">
-                                <button type="button" onClick={() => setModalOpen(false)} className="text-white/60 hover:text-white py-3 px-6 text-sm font-bold transition-colors">Cancel</button>
-                                <button type="submit" className="bg-primary hover:bg-primary/90 text-white py-4 px-10 rounded-2xl font-black text-sm shadow-xl shadow-primary/20 transition-all active:scale-95 uppercase tracking-widest">
-                                    {isEditing ? "Update Movie" : "Create Movie"}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid gap-2">
+                  <label className="text-[10px] uppercase font-bold text-white/40 tracking-widest ml-1">
+                    Genre (comma separated)
+                  </label>
+                  <input
+                    name="genre"
+                    value={formData.genre}
+                    onChange={handleInputChange}
+                    className="bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm focus:border-primary/50 focus:outline-none transition-colors"
+                    required
+                  />
                 </div>
-            )}
 
-            <ConfirmModal open={confirm.isOpen} message={confirm.message} onConfirm={confirm.handleConfirm} onCancel={confirm.handleCancel} />
-        </section>
-    );
+                <div className="grid gap-2">
+                  <label className="text-[10px] uppercase font-bold text-white/40 tracking-widest ml-1">
+                    Duration (mins)
+                  </label>
+                  <input
+                    type="number"
+                    name="duration"
+                    value={formData.duration}
+                    onChange={handleInputChange}
+                    className="bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm focus:border-primary/50 focus:outline-none transition-colors"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid gap-2">
+                  <label className="text-[10px] uppercase font-bold text-white/40 tracking-widest ml-1">
+                    Language
+                  </label>
+                  <input
+                    name="language"
+                    value={formData.language}
+                    onChange={handleInputChange}
+                    className="bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm focus:border-primary/50 focus:outline-none transition-colors"
+                    required
+                  />
+                </div>
+
+                <div className="grid gap-2">
+                  <label className="text-[10px] uppercase font-bold text-white/40 tracking-widest ml-1">
+                    Release Date
+                  </label>
+                  <input
+                    type="date"
+                    name="releaseDate"
+                    value={formData.releaseDate}
+                    onChange={handleInputChange}
+                    className="bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm focus:border-primary/50 focus:outline-none transition-colors"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid gap-4">
+                <label className="text-[10px] uppercase font-bold text-white/40 tracking-widest ml-1">
+                  {isEditing && typeof formData.posterImage === "string"
+                    ? "Update Poster Image"
+                    : "Poster Image"}
+                </label>
+
+                <div className="flex flex-col md:flex-row gap-6 items-start">
+                  {/* ✅ IMPORTANT: relative is required for Image fill */}
+                  <div className="w-full md:w-32 aspect-[2/3] relative bg-white/5 rounded-2xl overflow-hidden border border-white/10 flex-shrink-0">
+                    {previewUrl ? (
+                      previewUrl.startsWith("blob:") ? (
+                        <img
+                          src={previewUrl}
+                          alt="Poster Preview"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <Image
+                          src={previewUrl}
+                          alt="Poster Preview"
+                          fill
+                          className="object-cover"
+                          sizes="128px"
+                        />
+                      )
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-[10px] font-black uppercase text-white/20 text-center p-4">
+                        No Preview
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex-1 w-full flex flex-col gap-3">
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      name="posterImage"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      style={{ display: "none" }}
+                    />
+
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        fileInputRef.current?.click();
+                      }}
+                      className="bg-primary hover:bg-primary/90 text-white py-3 px-6 rounded-2xl font-black text-sm uppercase tracking-widest shadow-lg shadow-primary/20 transition-all active:scale-95 w-full"
+                    >
+                      Choose Image
+                    </button>
+
+                    {fileName && (
+                      <div className="text-xs text-white/60 bg-white/5 border border-white/10 rounded-xl p-3 flex items-center gap-2">
+                        <span className="text-green-400 text-lg">✓</span>
+                        <span className="truncate">{fileName}</span>
+                      </div>
+                    )}
+
+                    {isEditing &&
+                      typeof formData.posterImage === "string" &&
+                      formData.posterImage !== "" &&
+                      !fileName && (
+                        <div className="text-xs text-white/40 bg-white/5 border border-white/10 rounded-xl p-3 flex items-center gap-2">
+                          <span className="text-primary text-base">ℹ️</span>
+                          <span className="truncate">
+                            Current: {formData.posterImage.split("/").pop()}
+                          </span>
+                        </div>
+                      )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-4 mt-4 pt-10 border-t border-white/5">
+                <button
+                  type="button"
+                  onClick={closeModal}
+                  className="text-white/60 hover:text-white py-3 px-6 text-sm font-bold transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="bg-primary hover:bg-primary/90 text-white py-4 px-10 rounded-2xl font-black text-sm shadow-xl shadow-primary/20 transition-all active:scale-95 uppercase tracking-widest"
+                >
+                  {isEditing ? "Update Movie" : "Create Movie"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      <ConfirmModal
+        open={confirm.isOpen}
+        message={confirm.message}
+        onConfirm={confirm.handleConfirm}
+        onCancel={confirm.handleCancel}
+      />
+    </section>
+  );
 }

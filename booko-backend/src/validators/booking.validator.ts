@@ -9,6 +9,11 @@ export const createBookingValidation = [
         .isString()
         .notEmpty()
         .withMessage("Seat ID must be a string"),
+    // admins may optionally supply a userId to book on behalf of someone else
+    body("userId")
+        .optional()
+        .isMongoId()
+        .withMessage("Invalid user ID"),
 ];
 
 export const updateBookingStatusValidation = [

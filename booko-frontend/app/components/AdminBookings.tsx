@@ -11,7 +11,10 @@ import { getImageUrl } from "@/app/utils/apiClient";
 
 interface Booking {
     _id: string;
-    userId: { name: string, email: string };
+    customerName?: string;
+    customerEmail?: string;
+    // userId might be a populated object or just an id string in some cases
+    userId: { _id?: string; name?: string; email?: string } | string;
     showtimeId: {
         movieId: { title: string, posterImage: string },
         theaterId: { name: string },
@@ -23,7 +26,7 @@ interface Booking {
     totalAmount: number;
     bookingStatus: "confirmed" | "cancelled" | "pending";
     paymentStatus: "completed" | "failed" | "pending";
-}
+}        
 
 export default function AdminBookings() {
     const [bookings, setBookings] = useState<Booking[]>([]);
@@ -133,8 +136,12 @@ export default function AdminBookings() {
                             {bookings.map(b => (
                                 <tr key={b._id} className="hover:bg-white/[0.02] transition-colors group">
                                     <td className="p-4">
-                                        <div className="text-sm font-semibold">{b.userId?.name}</div>
-                                        <div className="text-[10px] text-white/40 font-medium uppercase tracking-wider mt-0.5">{b.userId?.email}</div>
+                                        <div className="text-sm font-semibold">
+                                            {b.customerName || (typeof b.userId === 'string' ? 'Unknown user' : b.userId?.name || 'Unknown user')}
+                                        </div>
+                                        <div className="text-[10px] text-white/40 font-medium uppercase tracking-wider mt-0.5">
+                                            {b.customerEmail || (typeof b.userId === 'string' ? '' : b.userId?.email || '')}
+                                        </div>
                                     </td>
                                     <td className="p-4">
                                         <div className="flex items-center gap-4">

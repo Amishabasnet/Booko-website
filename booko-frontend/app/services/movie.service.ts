@@ -10,10 +10,10 @@ export const getMovieShowtimes = (movieId: string) =>
 export const getMovieById = (id: string) => apiClient.get(`/movies/${id}`);
 
 export const createMovie = (data: any) =>
-    apiClient.post("/movies", data, { headers: { "Content-Type": "multipart/form-data" } });
+    apiClient.post("/movies", data);
 
 export const updateMovie = (id: string, data: any) =>
-    apiClient.put(`/movies/${id}`, data, { headers: { "Content-Type": "multipart/form-data" } });
+    apiClient.put(`/movies/${id}`, data);
 
 export const deleteMovie = (id: string) =>
     apiClient.delete(`/movies/${id}`);
