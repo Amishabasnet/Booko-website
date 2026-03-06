@@ -11,13 +11,16 @@ export const bookingRepository = {
             ]
         }
     ]),
-    findByUserId: (userId: string) => BookingModel.find({ userId }).populate({
-        path: "showtimeId",
-        populate: [
-            { path: "movieId" },
-            { path: "theaterId" }
-        ]
-    }),
+    findByUserId: (userId: string) => BookingModel.find({ userId }).populate([
+        { path: "userId" },
+        {
+            path: "showtimeId",
+            populate: [
+                { path: "movieId" },
+                { path: "theaterId" }
+            ]
+        }
+    ]),
     findById: (id: string) => BookingModel.findById(id).populate([
         { path: "userId" },
         {

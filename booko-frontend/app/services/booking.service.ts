@@ -4,6 +4,7 @@ export const createBooking = (data: {
     showtimeId: string;
     selectedSeats: string[];
     totalAmount: number;
+    userId?: string; // admin may override
 }) => apiClient.post("/bookings", data);
 
 export const getUserBookings = () =>

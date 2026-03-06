@@ -3,10 +3,18 @@ import { bookingService } from "../services/booking.service";
 
 export const bookingController = {
     async create(req: Request, res: Response) {
-        const userId = req.user!.userId;
-        const booking = await bookingService.createBooking(userId, req.body);
+        const requestUserId = req.user!.userId;
+        let customerId = requestUserId;
+
+        // allow admins to book on behalf of another user if they include userId in the body
+        if (req.user!.role === "admin" && req.body.userId) {
+            customerId = req.body.userId;
+        }
+
+        const booking = await bookingService.createBooking(customerId, req.body);
         return res.status(201).json({ success: true, message: "Booking created successfully", booking });
     },
+
 
     async getByUser(req: Request, res: Response) {
         const userId = req.user!.userId;

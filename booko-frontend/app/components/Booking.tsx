@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createBooking, initiatePayment } from "@/app/services/booking.service";
 import axios from "axios";
+import { useAuth } from "@/app/context/AuthContext";
+import apiClient from "@/app/utils/apiClient";
 
 interface BookingProps {
     showtimeId: string;
@@ -17,17 +19,26 @@ export default function Booking({ showtimeId, selectedSeats, totalAmount, onBack
     const [error, setError] = useState<string | null>(null);
     const [paymentMethod, setPaymentMethod] = useState("esewa");
 
+    const { user } = useAuth();
+    // list of customers when admin booking on their behalf
+    const [customers, setCustomers] = useState<Array<{ _id: string; name: string; email: string }>>([]);
+    const [customerId, setCustomerId] = useState<string>("");
+
     const handleConfirmAndPay = async () => {
         setLoading(true);
         setError(null);
 
         try {
             // 1. Create the booking
-            const bookingRes = await createBooking({
+            const payload: any = {
                 showtimeId,
                 selectedSeats,
                 totalAmount
-            });
+            };
+            if (user?.role === "admin" && customerId) {
+                payload.userId = customerId;
+            }
+            const bookingRes = await createBooking(payload);
 
             const bookingId = bookingRes.data.booking._id;
 
@@ -47,10 +58,51 @@ export default function Booking({ showtimeId, selectedSeats, totalAmount, onBack
         }
     };
 
+    useEffect(() => {
+        if (user?.role === "admin") {
+            apiClient.get("/admin/users").then(res => {
+                setCustomers(res.data.users || []);
+            }).catch(() => {});
+        }
+    }, [user]);
+
     return (
         <div style={containerStyle}>
             <div style={cardStyle}>
                 <h2 style={titleStyle}>Booking Summary</h2>
+
+                {/* show which customer will be associated with the reservation */}
+                {user && (
+                    <div style={infoRowStyle}>
+                        <span style={labelStyle}>Customer:</span>
+                        <span style={valueStyle}>
+                            {user.role === "admin"
+                                ? (customers.find(c => c._id === customerId)?.name || "Admin user")
+                                : user.name}{" "}
+                            {user.role === "admin"
+                                ? (customers.find(c => c._id === customerId)?.email || "")
+                                : `(${user.email})`}
+                        </span>
+                    </div>
+                )}
+
+                {user?.role === "admin" && (
+                    <div style={infoRowStyle}>
+                        <span style={labelStyle}>Choose customer</span>
+                        <select
+                            value={customerId}
+                            onChange={(e) => setCustomerId(e.target.value)}
+                            style={selectStyle}
+                        >
+                            <option value="">-- select user --</option>
+                            {customers.map(c => (
+                                <option key={c._id} value={c._id}>
+                                    {c.name} ({c.email})
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                )}
 
                 <div style={infoRowStyle}>
                     <span style={labelStyle}>Selected Seats:</span>
