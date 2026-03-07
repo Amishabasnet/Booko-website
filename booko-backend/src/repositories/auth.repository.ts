@@ -6,6 +6,9 @@ export const authRepository = {
   createUser: (data: {
     name?: string;
     email: string;
+    phoneNumber?: string;
+    gender?: "male" | " female" | "other";
+    dateOfBirth?: Date;
     passwordHash: string;
     role: "user" | "admin";
   }) => UserModel.create(data),

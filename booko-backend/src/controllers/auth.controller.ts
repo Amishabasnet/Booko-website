@@ -12,6 +12,7 @@ const cookieOptions = {
 export const authController = {
   async register(req: Request, res: Response) {
     const result = await authService.register(req.body);
+    console.log("Registration result:", result);
     return res.status(201).json({ success: true, message: "User registered successfully", ...result });
   },
 
