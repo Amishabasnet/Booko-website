@@ -14,7 +14,22 @@ export const registerValidation = [
     .isEmail()
     .withMessage("Invalid email format")
     .normalizeEmail(),
+  body("phoneNumber")
+    .trim()
+    .notEmpty()
+    .withMessage("Phone number is required")
+    .isLength({ min: 10, max: 15 })
+    .withMessage("Phone number must be between 10 and 15 characters"),
+  body("gender")
+    .optional()
+    .isIn(["male", "female", "other"])
+    .withMessage("Invalid gender"),
+  body("dateOfBirth")
+    .optional()
+    .isISO8601()
+    .withMessage("Date of birth must be a valid date"),
   body("password")
+    .trim()
     .notEmpty()
     .withMessage("Password is required")
     .isLength({ min: 6 })
